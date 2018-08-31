@@ -1,7 +1,7 @@
 # Личный проект «Кэндишоп» [![Build status][travis-image]][travis-url]
 
 * Студент: [Никита Романкин](https://up.htmlacademy.ru/javascript/15/user/816635).
-* Наставник: `Неизвестно`.
+* Наставник: [Андрей Рыжаков](https://github.com/pepelxD).
 
 ---
 
