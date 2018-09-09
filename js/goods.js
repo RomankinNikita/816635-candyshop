@@ -81,43 +81,43 @@ var renderCandy = function (candy) {
   var candyCharacteristic = candyElement.querySelector('.card__characteristic');
   var candyComposition = candyElement.querySelector('.card__composition-list');
 
-  //в зависимости от количества amount добавьте следующий класс:
+  // в зависимости от количества amount добавьте следующий класс:
   if (candy.amount <= 5) {
     candyElement.classList.remove('card--in-stock');
-    if (candy.amount == 0) {
+    if (candy.amount === 0) {
       candyElement.classList.add('card--soon');
     } else {
       candyElement.classList.add('card--little');
     }
   }
 
-  //название вставьте в блок card__title:
+  // название вставьте в блок card__title:
   cardTitle.textContent = candy.name;
 
-  //изменим картинку:
+  // изменим картинку:
   candyImage.src = candy.picture;
 
-  //содержимое блока card__price должно выглядеть следующим образом:{{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>:
+  // содержимое блока card__price должно выглядеть следующим образом:{{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>:
   candyPrice.innerHTML = '' + candy.price + ' <span class="card__currency">₽</span><span class="card__weight">/ ' + candy.weight + ' Г</span>';
 
-  //класс блока stars__rating должен соответствовать рейтингу:
+  // класс блока stars__rating должен соответствовать рейтингу:
   if (candy.rating.value < 5) {
     candyRating.classList.remove('stars__rating--five');
-    if (candy.rating.value == 1) {
+    if (candy.rating.value === 1) {
       candyRating.classList.add('stars__rating--one');
-    } else if (candy.rating.value == 2) {
+    } else if (candy.rating.value === 2) {
       candyRating.classList.add('stars__rating--two');
-    } else if (candy.rating.value == 3) {
+    } else if (candy.rating.value === 3) {
       candyRating.classList.add('stars__rating--three');
     } else {
       candyRating.classList.add('stars__rating--four');
     }
   }
 
-  //В блок star__count вставьте значение rating.number:
+  // В блок star__count вставьте значение rating.number:
   candyRatingCount.textContent = '(' + candy.rating.number + ')';
 
-  //Блок card__characteristic должен формироваться следующим образом:
+  // Блок card__characteristic должен формироваться следующим образом:
   if (candy.nutritionFacts.sugar) {
     candyCharacteristic.textContent = 'Содержит сахар. ' + candy.nutritionFacts.energy + ' ккал';
   } else {
@@ -142,10 +142,10 @@ var fillBlock = function (block, createElement, data) {
 
 fillBlock(loadBlock, renderCandy, candies);
 
-//По аналогии с исходным массивом данных создайте ещё один массив, состоящий из трёх элементов. Это будет массив объектов, который соответствует товарам, добавленным в корзину:
+// По аналогии с исходным массивом данных создайте ещё один массив, состоящий из трёх элементов. Это будет массив объектов, который соответствует товарам, добавленным в корзину:
 var goods = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 3);
 
-//На основе шаблона goods_card создайте DOM-элементы товаров, добавленных в корзину. Заполните их данными из исходного массива и отрисуйте эти элементы в блок goods__cards:
+// На основе шаблона goods_card создайте DOM-элементы товаров, добавленных в корзину. Заполните их данными из исходного массива и отрисуйте эти элементы в блок goods__cards:
 var similarGoodsTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
 
 var renderGoods = function (product) {
@@ -165,7 +165,7 @@ var goodsBlock = document.querySelector('.goods__cards');
 
 fillBlock(goodsBlock, renderGoods, goods);
 
-//Удалите у блока goods__cards класс goods__cards--empty и скройте при этом блок goods__card-empty:
+// Удалите у блока goods__cards класс goods__cards--empty и скройте при этом блок goods__card-empty:
 goodsBlock.classList.remove('goods__cards--empty');
 
 var goodsCard = document.querySelector('.goods__card-empty');
