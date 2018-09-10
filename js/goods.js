@@ -172,6 +172,3 @@ goodsBlock.classList.remove('goods__cards--empty');
 var goodsCard = document.querySelector('.goods__card-empty');
 
 goodsCard.classList.add('visually-hidden');
-
-console.log(candies[0]);
-
