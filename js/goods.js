@@ -98,20 +98,21 @@ var renderCandy = function (candy) {
   candyImage.src = candy.picture;
 
   // содержимое блока card__price должно выглядеть следующим образом:{{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>:
-  candyPrice.innerHTML = '' + candy.price + ' <span class="card__currency">₽</span><span class="card__weight">/ ' + candy.weight + ' Г</span>';
+  candyPrice.textContent = candy.price;
+  var candyPriceSpanFirst = document.createElement('span');
+  candyPriceSpanFirst.classList.add('card__currency');
+  candyPriceSpanFirst.textContent = ' ₽';
+  candyPrice.appendChild(candyPriceSpanFirst);
+  var candyPriceSpanSecond = document.createElement('span');
+  candyPriceSpanSecond.classList.add('card__weight');
+  candyPriceSpanSecond.textContent = '/ ' + candy.weight + ' Г';
+  candyPrice.appendChild(candyPriceSpanSecond);
 
   // класс блока stars__rating должен соответствовать рейтингу:
-  if (candy.rating.value < 5) {
+  if (candy.rating.value < 5) { // я не додумался как полностью убрать условие, т.к. в разметке по умолчанию стоит класс stars__rating--five, который не перебивается добавлением класса через .classList.add() и все карточки имеют поэтому 5 звезд
     candyRating.classList.remove('stars__rating--five');
-    if (candy.rating.value === 1) {
-      candyRating.classList.add('stars__rating--one');
-    } else if (candy.rating.value === 2) {
-      candyRating.classList.add('stars__rating--two');
-    } else if (candy.rating.value === 3) {
-      candyRating.classList.add('stars__rating--three');
-    } else {
-      candyRating.classList.add('stars__rating--four');
-    }
+    var ratingValue = ['one', 'two', 'three', 'four'];
+    candyRating.classList.add('stars__rating--' + ratingValue[candy.rating.value - 1]);
   }
 
   // В блок star__count вставьте значение rating.number:
@@ -171,3 +172,6 @@ goodsBlock.classList.remove('goods__cards--empty');
 var goodsCard = document.querySelector('.goods__card-empty');
 
 goodsCard.classList.add('visually-hidden');
+
+console.log(candies[0]);
+
