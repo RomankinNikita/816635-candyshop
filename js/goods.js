@@ -8,6 +8,7 @@ var CANDY_PICTURES = ['gum-cedar.jpg', 'gum-chile.jpg', 'gum-eggplant.jpg', 'gum
 var CANDY_CONTENTS = ['молоко', 'сливки', 'вода', 'пищевой краситель', 'патока', 'ароматизатор бекона', 'ароматизатор свинца', 'ароматизатор дуба, идентичный натуральному', 'ароматизатор картофеля', 'лимонная кислота', 'загуститель', 'эмульгатор', 'консервант: сорбат калия', 'посолочная смесь: соль, нитрит натрия', 'ксилит', 'карбамид', 'вилларибо', 'виллабаджо'];
 
 var generateArr = [];
+var goods = [];
 
 var getRandomValue = function (param) {
   var result = Math.round(Math.random() * (param.length - 1));
@@ -19,6 +20,9 @@ var getRandomInRange = function (min, max) {
 var isTrue = function () {
   return (Math.floor(Math.random() * 2) === 0);
 };
+
+var goodsBlock = document.querySelector('.goods__cards');
+var goodsCard = document.querySelector('.goods__card-empty');
 
 var getRandomData = function (names, pictures, contents, n) {
   generateArr = [];
@@ -60,13 +64,13 @@ var getRandomData = function (names, pictures, contents, n) {
   return generateArr;
 };
 
-var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 26);
+var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 2);
 
 // 2. Уберите у блока catalog__cards класс catalog__cards--load и скройте, добавлением класса visually-hidden блок catalog__load:
 var loadBlock = document.querySelector('.catalog__cards');
-loadBlock.classList.remove('catalog__cards--load');
-var loadText = document.querySelector('.catalog__load');
-loadText.classList.add('visually-hidden');
+// loadBlock.classList.remove('catalog__cards--load');
+// var loadText = document.querySelector('.catalog__load');
+// loadText.classList.add('visually-hidden');
 
 // 2.1 На основе данных, созданных в предыдущем пункте и шаблона catalog__card, создайте DOM-элементы, соответствующие фотографиям и заполните их данными из массива:
 var similarCandyTemplate = document.querySelector('#card').content.querySelector('.catalog__card');
@@ -80,6 +84,8 @@ var renderCandy = function (candy) {
   var candyRatingCount = candyElement.querySelector('.star__count');
   var candyCharacteristic = candyElement.querySelector('.card__characteristic');
   var candyComposition = candyElement.querySelector('.card__composition-list');
+  var cardBtn = candyElement.querySelector('.card__btn');
+  var cardBtnFav = candyElement.querySelector('.card__btn-favorite');
 
   // в зависимости от количества amount добавьте следующий класс:
   if (candy.amount <= 5) {
@@ -109,7 +115,7 @@ var renderCandy = function (candy) {
   candyPrice.appendChild(candyPriceSpanSecond);
 
   // класс блока stars__rating должен соответствовать рейтингу:
-  if (candy.rating.value < 5) { // я не додумался как полностью убрать условие, т.к. в разметке по умолчанию стоит класс stars__rating--five, который не перебивается добавлением класса через .classList.add() и все карточки имеют поэтому 5 звезд
+  if (candy.rating.value < 5) {
     candyRating.classList.remove('stars__rating--five');
     var ratingValue = ['one', 'two', 'three', 'four'];
     candyRating.classList.add('stars__rating--' + ratingValue[candy.rating.value - 1]);
@@ -119,13 +125,29 @@ var renderCandy = function (candy) {
   candyRatingCount.textContent = '(' + candy.rating.number + ')';
 
   // Блок card__characteristic должен формироваться следующим образом:
-  if (candy.nutritionFacts.sugar) {
-    candyCharacteristic.textContent = 'Содержит сахар. ' + candy.nutritionFacts.energy + ' ккал';
-  } else {
-    candyCharacteristic.textContent = 'Без сахара. ' + candy.nutritionFacts.energy + ' ккал';
-  }
+  var isSugarText = candy.nutritionFacts.sugar ? 'Содержит сахар. ' : 'Без сахара. ';
+  candyCharacteristic.textContent = isSugarText + candy.nutritionFacts.energy + ' ккал';
 
   candyComposition.textContent = '' + candy.nutritionFacts.contents + '.';
+
+  // события кнопок добавления в корзину и в избранное:
+  cardBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    if (goods.indexOf(candy) != -1) {
+      var cardOrderCount = document.querySelector('.card-order__count');
+      cardOrderCount.value = +cardOrderCount.value + 1;
+    } else {
+      goods.push(candy);
+      fillBlock(goodsBlock, renderGoods, goods);
+      goodsBlock.classList.remove('goods__cards--empty');
+      goodsCard.classList.add('visually-hidden');
+      // goods = [];
+    }
+  });
+  cardBtnFav.addEventListener('click', function (event) {
+    event.preventDefault();
+    cardBtnFav.classList.toggle('card__btn-favorite--selected');
+  });
 
   return candyElement;
 };
@@ -144,7 +166,8 @@ var fillBlock = function (block, createElement, data) {
 fillBlock(loadBlock, renderCandy, candies);
 
 // По аналогии с исходным массивом данных создайте ещё один массив, состоящий из трёх элементов. Это будет массив объектов, который соответствует товарам, добавленным в корзину:
-var goods = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 3);
+// var goods = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 3);
+
 
 // На основе шаблона goods_card создайте DOM-элементы товаров, добавленных в корзину. Заполните их данными из исходного массива и отрисуйте эти элементы в блок goods__cards:
 var similarGoodsTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
@@ -162,13 +185,19 @@ var renderGoods = function (product) {
   return goodsElement;
 };
 
-var goodsBlock = document.querySelector('.goods__cards');
-
-fillBlock(goodsBlock, renderGoods, goods);
+// fillBlock(goodsBlock, renderGoods, goods);
 
 // Удалите у блока goods__cards класс goods__cards--empty и скройте при этом блок goods__card-empty:
-goodsBlock.classList.remove('goods__cards--empty');
+// goodsBlock.classList.remove('goods__cards--empty');
+// goodsCard.classList.add('visually-hidden');
+////////////////////////////////////////////////////////////
 
-var goodsCard = document.querySelector('.goods__card-empty');
+// В этом задании мы реализуем следующие пользовательские сценарии:
+// + добавление выбранного товара в избранное; (ТЗ-5)
+// добавление выбранного товара в корзину; (ТЗ-6)
+// удаление товара из корзины; (ТЗ-7)
+// управление количеством определенного товара в корзине; (ТЗ-7)
+// переключение вкладок в форме оформления заказа; (ТЗ-8)
+// первая фаза работы фильтра по цене. (ТЗ-2.3)
 
-goodsCard.classList.add('visually-hidden');
+// + Перед началом выполнения этого задания вам нужно будет привести страницу в исходное состояние: убрать все карточки товаров, показанные на странице в списке товаров и в корзине и показать сообщения о пустых блоках. В случае со списком товаров нужно показать сообщение о загрузке списка товаров, в случае с корзиной, сообщение о том, что блок ещё пустой.
