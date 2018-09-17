@@ -8,8 +8,13 @@ var CANDY_PICTURES = ['gum-cedar.jpg', 'gum-chile.jpg', 'gum-eggplant.jpg', 'gum
 var CANDY_CONTENTS = ['молоко', 'сливки', 'вода', 'пищевой краситель', 'патока', 'ароматизатор бекона', 'ароматизатор свинца', 'ароматизатор дуба, идентичный натуральному', 'ароматизатор картофеля', 'лимонная кислота', 'загуститель', 'эмульгатор', 'консервант: сорбат калия', 'посолочная смесь: соль, нитрит натрия', 'ксилит', 'карбамид', 'вилларибо', 'виллабаджо'];
 
 var generateArr = [];
-var goods = [];
 
+// Корзина покупок:
+var basketCardTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
+var basket = document.querySelector('.goods__cards');
+var basketEmpty = document.querySelector('.goods__card-empty');
+
+// Вспомогательные функции:
 var getRandomValue = function (param) {
   var result = Math.round(Math.random() * (param.length - 1));
   return result;
@@ -20,9 +25,6 @@ var getRandomInRange = function (min, max) {
 var isTrue = function () {
   return (Math.floor(Math.random() * 2) === 0);
 };
-
-var goodsBlock = document.querySelector('.goods__cards');
-var goodsCard = document.querySelector('.goods__card-empty');
 
 var getRandomData = function (names, pictures, contents, n) {
   generateArr = [];
@@ -55,7 +57,7 @@ var getRandomData = function (names, pictures, contents, n) {
         sugar: randomSugar,
         energy: randomEnergy,
         contents: randomContents
-      }
+      },
     };
 
     generateArr.push(generateObj);
@@ -64,7 +66,7 @@ var getRandomData = function (names, pictures, contents, n) {
   return generateArr;
 };
 
-var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 2);
+var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 5);
 
 // 2. Уберите у блока catalog__cards класс catalog__cards--load и скройте, добавлением класса visually-hidden блок catalog__load:
 var loadBlock = document.querySelector('.catalog__cards');
@@ -75,7 +77,7 @@ var loadBlock = document.querySelector('.catalog__cards');
 // 2.1 На основе данных, созданных в предыдущем пункте и шаблона catalog__card, создайте DOM-элементы, соответствующие фотографиям и заполните их данными из массива:
 var similarCandyTemplate = document.querySelector('#card').content.querySelector('.catalog__card');
 
-var renderCandy = function (candy) {
+var renderCandy = function (candy, id) {
   var candyElement = similarCandyTemplate.cloneNode(true);
   var cardTitle = candyElement.querySelector('.card__title');
   var candyImage = candyElement.querySelector('.card__img');
@@ -84,17 +86,16 @@ var renderCandy = function (candy) {
   var candyRatingCount = candyElement.querySelector('.star__count');
   var candyCharacteristic = candyElement.querySelector('.card__characteristic');
   var candyComposition = candyElement.querySelector('.card__composition-list');
-  var cardBtn = candyElement.querySelector('.card__btn');
+  var basketBtn = candyElement.querySelector('.card__btn');
   var cardBtnFav = candyElement.querySelector('.card__btn-favorite');
+
+  candyElement.id = id;
 
   // в зависимости от количества amount добавьте следующий класс:
   if (candy.amount <= 5) {
     candyElement.classList.remove('card--in-stock');
-    if (candy.amount === 0) {
-      candyElement.classList.add('card--soon');
-    } else {
-      candyElement.classList.add('card--little');
-    }
+    var amountClass = candy.amount === 0 ? 'card--soon' : 'card--little';
+    candyElement.classList.add(amountClass);
   }
 
   // название вставьте в блок card__title:
@@ -130,23 +131,45 @@ var renderCandy = function (candy) {
 
   candyComposition.textContent = '' + candy.nutritionFacts.contents + '.';
 
-  // события кнопок добавления в корзину и в избранное:
-  cardBtn.addEventListener('click', function (event) {
+  // СОБЫТИЯ КНОПОК добавления в корзину и в избранное:
+  // добавить в корзину:
+  basketBtn.addEventListener('click', function (event) {
     event.preventDefault();
-    if (goods.indexOf(candy) != -1) {
-      var cardOrderCount = document.querySelector('.card-order__count');
-      cardOrderCount.value = +cardOrderCount.value + 1;
+    var template = basketCardTemplate.cloneNode(true);
+    var index = basketBtn.closest('.catalog__card').id;
+    template.querySelector('.card-order__title').textContent = candies[index].name;
+    template.querySelector('.card-order__img').src = candies[index].picture;
+    template.querySelector('.card-order__price').textContent = candies[index].price + ' ₽';
+    template.dataset.id = index;
+
+    if (!candies[index].isBasket) {
+      candies[index].isBasket = true;
+      basket.appendChild(template);
     } else {
-      goods.push(candy);
-      fillBlock(goodsBlock, renderGoods, goods);
-      goodsBlock.classList.remove('goods__cards--empty');
-      goodsCard.classList.add('visually-hidden');
-      // goods = [];
+      var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
+      input.value = parseInt(input.value) + 1;
     }
+    basket.classList.remove('goods__cards--empty');
+    basketEmpty.classList.add('visually-hidden');
+
+    // удалить из корзины:
+    template.querySelector('.card-order__close').addEventListener('click', function (event) {
+      event.preventDefault();
+      candies[index].isBasket = false;
+      template.remove();
+      if (basket.children.length === 1) {
+        basket.classList.add('goods__cards--empty');
+        basketEmpty.classList.remove('visually-hidden');
+      }
+    });
   });
+  // добавить в избранное:
   cardBtnFav.addEventListener('click', function (event) {
     event.preventDefault();
     cardBtnFav.classList.toggle('card__btn-favorite--selected');
+    cardBtnFav.blur();
+    var index = cardBtnFav.closest('.catalog__card').id;
+    candies[index].isFavorite = !candies[index].isFavorite;
   });
 
   return candyElement;
@@ -156,48 +179,13 @@ var renderCandy = function (candy) {
 var fillBlock = function (block, createElement, data) {
   var fragment = document.createDocumentFragment();
 
-  for (var i = 0; i < data.length; i++) {
-    fragment.appendChild(createElement(data[i]));
-  }
-
+  data.forEach(function (item, i) {
+    fragment.appendChild(createElement(item, i));
+  });
   block.appendChild(fragment);
 };
 
 fillBlock(loadBlock, renderCandy, candies);
 
-// По аналогии с исходным массивом данных создайте ещё один массив, состоящий из трёх элементов. Это будет массив объектов, который соответствует товарам, добавленным в корзину:
-// var goods = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 3);
-
-
-// На основе шаблона goods_card создайте DOM-элементы товаров, добавленных в корзину. Заполните их данными из исходного массива и отрисуйте эти элементы в блок goods__cards:
-var similarGoodsTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
-
-var renderGoods = function (product) {
-  var goodsElement = similarGoodsTemplate.cloneNode(true);
-  var goodsTitle = goodsElement.querySelector('.card-order__title');
-  var goodsImage = goodsElement.querySelector('.card-order__img');
-  var goodsPrice = goodsElement.querySelector('.card-order__price');
-
-  goodsTitle.textContent = product.name;
-  goodsImage.src = product.picture;
-  goodsPrice.textContent = '' + product.price + ' ₽';
-
-  return goodsElement;
-};
-
-// fillBlock(goodsBlock, renderGoods, goods);
-
-// Удалите у блока goods__cards класс goods__cards--empty и скройте при этом блок goods__card-empty:
-// goodsBlock.classList.remove('goods__cards--empty');
-// goodsCard.classList.add('visually-hidden');
-////////////////////////////////////////////////////////////
-
-// В этом задании мы реализуем следующие пользовательские сценарии:
-// + добавление выбранного товара в избранное; (ТЗ-5)
-// добавление выбранного товара в корзину; (ТЗ-6)
-// удаление товара из корзины; (ТЗ-7)
-// управление количеством определенного товара в корзине; (ТЗ-7)
 // переключение вкладок в форме оформления заказа; (ТЗ-8)
 // первая фаза работы фильтра по цене. (ТЗ-2.3)
-
-// + Перед началом выполнения этого задания вам нужно будет привести страницу в исходное состояние: убрать все карточки товаров, показанные на странице в списке товаров и в корзине и показать сообщения о пустых блоках. В случае со списком товаров нужно показать сообщение о загрузке списка товаров, в случае с корзиной, сообщение о том, что блок ещё пустой.
