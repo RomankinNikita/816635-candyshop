@@ -12,7 +12,14 @@ var generateArr = [];
 // Корзина покупок:
 var basketCardTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
 var basket = document.querySelector('.goods__cards');
-var basketEmpty = document.querySelector('.goods__card-empty');
+var basketEmpty = basket.querySelector('.goods__card-empty');
+var basketTotal = document.querySelector('.goods__total');
+var goodsTotal = document.querySelector('.goods__total-count');
+var totalAmount = document.querySelector('.goods__price');
+var basketHeaderAmount = document.querySelector('.main-header__basket');
+
+var amount = 0;
+var totalGoogs = 0;
 
 // Вспомогательные функции:
 var getRandomValue = function (param) {
@@ -66,16 +73,37 @@ var getRandomData = function (names, pictures, contents, n) {
   return generateArr;
 };
 
-var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 5);
+var candies = getRandomData(CANDY_NAMES, CANDY_PICTURES, CANDY_CONTENTS, 3);
 
 // 2. Уберите у блока catalog__cards класс catalog__cards--load и скройте, добавлением класса visually-hidden блок catalog__load:
 var loadBlock = document.querySelector('.catalog__cards');
-// loadBlock.classList.remove('catalog__cards--load');
-// var loadText = document.querySelector('.catalog__load');
-// loadText.classList.add('visually-hidden');
+
+loadBlock.classList.remove('catalog__cards--load');
+var loadText = document.querySelector('.catalog__load');
+loadText.classList.add('visually-hidden');
 
 // 2.1 На основе данных, созданных в предыдущем пункте и шаблона catalog__card, создайте DOM-элементы, соответствующие фотографиям и заполните их данными из массива:
 var similarCandyTemplate = document.querySelector('#card').content.querySelector('.catalog__card');
+
+function renderGoodsCount() {
+
+}
+
+function renderTotalPrice() {
+
+}
+
+function addGoodsBasket() {
+
+}
+
+function removeGoodsBasket() {
+
+}
+
+function addFavorites() {
+
+}
 
 var renderCandy = function (candy, id) {
   var candyElement = similarCandyTemplate.cloneNode(true);
@@ -90,20 +118,16 @@ var renderCandy = function (candy, id) {
   var cardBtnFav = candyElement.querySelector('.card__btn-favorite');
 
   candyElement.id = id;
-
   // в зависимости от количества amount добавьте следующий класс:
   if (candy.amount <= 5) {
     candyElement.classList.remove('card--in-stock');
     var amountClass = candy.amount === 0 ? 'card--soon' : 'card--little';
     candyElement.classList.add(amountClass);
   }
-
   // название вставьте в блок card__title:
   cardTitle.textContent = candy.name;
-
   // изменим картинку:
   candyImage.src = candy.picture;
-
   // содержимое блока card__price должно выглядеть следующим образом:{{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>:
   candyPrice.textContent = candy.price;
   var candyPriceSpanFirst = document.createElement('span');
@@ -114,54 +138,93 @@ var renderCandy = function (candy, id) {
   candyPriceSpanSecond.classList.add('card__weight');
   candyPriceSpanSecond.textContent = '/ ' + candy.weight + ' Г';
   candyPrice.appendChild(candyPriceSpanSecond);
-
   // класс блока stars__rating должен соответствовать рейтингу:
   if (candy.rating.value < 5) {
     candyRating.classList.remove('stars__rating--five');
     var ratingValue = ['one', 'two', 'three', 'four'];
     candyRating.classList.add('stars__rating--' + ratingValue[candy.rating.value - 1]);
   }
-
   // В блок star__count вставьте значение rating.number:
   candyRatingCount.textContent = '(' + candy.rating.number + ')';
-
   // Блок card__characteristic должен формироваться следующим образом:
   var isSugarText = candy.nutritionFacts.sugar ? 'Содержит сахар. ' : 'Без сахара. ';
   candyCharacteristic.textContent = isSugarText + candy.nutritionFacts.energy + ' ккал';
-
   candyComposition.textContent = '' + candy.nutritionFacts.contents + '.';
-
   // СОБЫТИЯ КНОПОК добавления в корзину и в избранное:
   // добавить в корзину:
   basketBtn.addEventListener('click', function (event) {
     event.preventDefault();
-    var template = basketCardTemplate.cloneNode(true);
     var index = basketBtn.closest('.catalog__card').id;
-    template.querySelector('.card-order__title').textContent = candies[index].name;
-    template.querySelector('.card-order__img').src = candies[index].picture;
-    template.querySelector('.card-order__price').textContent = candies[index].price + ' ₽';
-    template.dataset.id = index;
-
-    if (!candies[index].isBasket) {
-      candies[index].isBasket = true;
-      basket.appendChild(template);
-    } else {
-      var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
-      input.value = parseInt(input.value) + 1;
-    }
-    basket.classList.remove('goods__cards--empty');
-    basketEmpty.classList.add('visually-hidden');
-
-    // удалить из корзины:
-    template.querySelector('.card-order__close').addEventListener('click', function (event) {
-      event.preventDefault();
-      candies[index].isBasket = false;
-      template.remove();
-      if (basket.children.length === 1) {
-        basket.classList.add('goods__cards--empty');
-        basketEmpty.classList.remove('visually-hidden');
+    var CANDY_AMOUNT = candies[index].amount;
+    if (candies[index].amount !== 0) {
+      var template = basketCardTemplate.cloneNode(true);
+      template.querySelector('.card-order__title').textContent = candies[index].name;
+      template.querySelector('.card-order__img').src = candies[index].picture;
+      template.querySelector('.card-order__price').textContent = candies[index].price + ' ₽';
+      template.dataset.id = index;
+      if (!candies[index].isBasket) {
+        candies[index].isBasket = true;
+        basket.appendChild(template);
+        amount += 1;
+      } else {
+        var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
+        input.value = parseInt(input.value) + 1;
       }
-    });
+      totalGoogs += candies[index].price;
+      totalAmount.textContent = totalGoogs + ' ₽';
+      goodsTotal.childNodes[0].textContent = 'Итого за ' + amount + ' товаров:';
+      basketHeaderAmount.textContent = 'В корзине ' + amount + ' товаров';
+      if (basket.classList.contains('goods__cards--empty')) {
+        basket.classList.remove('goods__cards--empty');
+        basketEmpty.classList.add('visually-hidden');
+        basketTotal.classList.remove('visually-hidden');
+      }
+      candies[index].amount -= 1;
+
+      // Кнопки изменения input.value:
+      // Кнопка уменьшения:
+      var decreaseValueBtn = template.querySelector('.card-order__btn--decrease');
+      decreaseValueBtn.addEventListener('click', function () {
+        var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
+        if (input.value > 1) {
+          input.value = parseInt(input.value) - 1;
+          totalGoogs -= candies[index].price;
+          totalAmount.textContent = totalGoogs + ' ₽';
+          candies[index].amount += 1;
+        }
+      });
+      // Кнопка увеличения:
+      var increaseValueBtn = template.querySelector('.card-order__btn--increase');
+      increaseValueBtn.addEventListener('click', function () {
+        var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
+        if (candies[index].amount !== 0) {
+          input.value = parseInt(input.value) + 1;
+          totalGoogs += candies[index].price;
+          totalAmount.textContent = totalGoogs + ' ₽';
+          candies[index].amount -= 1;
+        }
+      });
+      // Удалить из корзины:
+      var deleteGoodsBtn = template.querySelector('.card-order__close');
+      deleteGoodsBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        candies[index].isBasket = false;
+        amount -= 1;
+        goodsTotal.childNodes[0].textContent = 'Итого за ' + amount + ' товаров:';
+        basketHeaderAmount.textContent = 'В корзине ' + amount + ' товаров';
+        var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
+        totalGoogs -= candies[index].price * input.value;
+        totalAmount.textContent = totalGoogs + ' ₽';
+        template.remove();
+        candies[index].amount = CANDY_AMOUNT;
+        if (basket.children.length === 1) {
+          basket.classList.add('goods__cards--empty');
+          basketEmpty.classList.remove('visually-hidden');
+          basketTotal.classList.add('visually-hidden');
+          basketHeaderAmount.textContent = 'В корзине ничего нет';
+        }
+      });
+    }
   });
   // добавить в избранное:
   cardBtnFav.addEventListener('click', function (event) {
