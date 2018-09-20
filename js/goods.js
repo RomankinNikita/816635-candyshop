@@ -307,7 +307,7 @@ function toSwitchTab(block, openClass, closeClass, specialString) {
     var currentWindow = block.querySelector('.' + event.target.id + specialString);
     currentWindow.classList.remove('visually-hidden');
     if (currentWindow === openWindow) {
-      closeWindow.classList.add('visually-hidden')
+      closeWindow.classList.add('visually-hidden');
     } else {
       openWindow.classList.add('visually-hidden');
     }
