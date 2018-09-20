@@ -350,6 +350,4 @@ inputCard.addEventListener('click', function () {
     }
     sum += doubleOddElementsArr[j];
   }
-  var message = (sum % 10 === 0) ? 'Номер карты правильный' : 'Номер карты неправильный';
-  alert(message);
-})
+});
