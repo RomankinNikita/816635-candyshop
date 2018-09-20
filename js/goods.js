@@ -291,20 +291,12 @@ var fillBlock = function (block, createElement, data) {
 };
 fillBlock(loadBlock, renderCandy, candies);
 // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ФОРМЕ ОФОРМЛЕНИЯ ЗАКАЗА:
-// var container = document.querySelector('.order');
-// container.addEventListener('click', function (event) {
-//   if (event.target.closest('.payment')) {
-//     toSwitchTab(container, '.payment__card', '.payment__cash', '-wrap');
-//   } else {
-//     toSwitchTab(container, '.deliver__store', '.deliver__courier', '');
-//   }
-// });
 var containerPayment = document.querySelector('.payment__method');
-containerPayment.addEventListener('click', function (event) {
+containerPayment.addEventListener('click', function () {
   toSwitchTab('.payment__card', '.payment__cash', '-wrap');
 });
 var containerDeliver = document.querySelector('.deliver__toggle');
-containerDeliver.addEventListener('click', function (event) {
+containerDeliver.addEventListener('click', function () {
   toSwitchTab('.deliver__store', '.deliver__courier', '');
 });
 // СМЕНА ВКЛАДОК:
