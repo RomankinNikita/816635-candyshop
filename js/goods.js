@@ -117,7 +117,7 @@ function changeInputValue(index, operation) {
         changeGoodsAmount(index, 'increment');
         totalGoogs += candies[index].price;
         totalAmount.textContent = totalGoogs + ' ₽';
-        changeAmount(index, false);;
+        changeAmount(index, false);
       }
       break;
     case 'decrease':
@@ -125,7 +125,7 @@ function changeInputValue(index, operation) {
         changeGoodsAmount(index, 'decrement');
         totalGoogs -= candies[index].price;
         totalAmount.textContent = totalGoogs + ' ₽';
-        changeAmount(index, true);;
+        changeAmount(index, true);
       }
       break;
     default:
@@ -156,7 +156,7 @@ function changeEmptyBasketVisibility(isVisible) {
 
 function changeGoodsAmount(index, operation) {
   var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
-  var value = parseInt(input.value);
+  var value = parseInt(input.value, 10);
   switch (operation) {
     case 'increment':
       value += 1;
@@ -180,7 +180,7 @@ function renderBasketGoods(index, template) {
     basket.appendChild(template);
     amount += 1;
   } else {
-    changeGoodsAmount(index, 'increment')
+    changeGoodsAmount(index, 'increment');
   }
   changeAmount(index, false);
 }
@@ -210,8 +210,8 @@ var btnAddToBasketHandler = function (event) {
     });
     // Удалить из корзины:
     var deleteGoodsBtn = template.querySelector('.card-order__close');
-    deleteGoodsBtn.addEventListener('click', function (event) {
-      event.preventDefault();
+    deleteGoodsBtn.addEventListener('click', function (evt) {
+      evt.preventDefault();
       removeFromBasket(index, template, candyAmount);
     });
   }
@@ -224,7 +224,7 @@ var btnFavoriteClickHandler = function (event) {
   btnFav.blur();
   var index = btnFav.closest('.catalog__card').id;
   candies[index].isFavorite = !candies[index].isFavorite;
-}
+};
 
 var renderCandy = function (candy, id) {
   var candyElement = similarCandyTemplate.cloneNode(true);
@@ -306,7 +306,11 @@ function toSwitchTab(block, openClass, closeClass, specialString) {
     var closeWindow = block.querySelector(closeClass + specialString);
     var currentWindow = block.querySelector('.' + event.target.id + specialString);
     currentWindow.classList.remove('visually-hidden');
-    (currentWindow === openWindow) ? closeWindow.classList.add('visually-hidden'): openWindow.classList.add('visually-hidden');
+    if (currentWindow === openWindow) {
+      closeWindow.classList.add('visually-hidden')
+    } else {
+      openWindow.classList.add('visually-hidden');
+    }
   }
 }
 
@@ -322,10 +326,10 @@ rangeFilter.addEventListener('mouseup', function (event) {
 // Изменение значения min и max цены в фильтре:
 function setPriceLimit(style, limit, isMin) {
   var currentBtn = event.target;
-  var style = window.getComputedStyle(currentBtn).getPropertyValue(style);
+  style = window.getComputedStyle(currentBtn).getPropertyValue(style);
   var value = +style.slice(0, -2) * 100 / 245;
   var priceValue = null;
-  isMin ? priceValue = value : priceValue = 100 - value;
+  priceValue = isMin ? value : 100 - value;
   var rangePrice = document.querySelector('.range__price--' + limit);
   rangePrice.textContent = priceValue;
 }
