@@ -346,10 +346,8 @@ inputCard.addEventListener('click', function () {
   var sum = 0;
   for (var j = 0; j < doubleOddElementsArr.length; j++) {
     if (doubleOddElementsArr[j] >= 10) {
-      doubleOddElementsArr[j] - 9;
+      doubleOddElementsArr[j] -= 9;
     }
     sum += doubleOddElementsArr[j];
   }
-  var message = (sum % 10 === 0) ? 'Номер карты правильный' : 'Номер карты неправильный';
-  console.log(message);
-})
+});
