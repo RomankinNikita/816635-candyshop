@@ -359,22 +359,19 @@ function setPriceLimit(rangePrice) {
 // }
 // var orderForm = document.querySelector('#order-form');
 // orderForm.addEventListener('submit', orderFormHandler);
-function cardNumberInputHandler(event) {
+function cardNumberInputHandler() {
   var inputCard = event.target;
   var inputCardValue = inputCard.value;
   var splitArr = inputCardValue.split('');
-  var doubleOddElementsArr = [];
-  for (var i = 0; i < splitArr.length; i++) {
-    if ((parseInt(splitArr[i], 10) % 2) !== 0) {
-      doubleOddElementsArr.push(splitArr[i] * 2);
-    }
-  }
   var sum = 0;
-  for (var j = 0; j < doubleOddElementsArr.length; j++) {
-    if (doubleOddElementsArr[j] >= 10) {
-      doubleOddElementsArr[j] -= 9;
+  for (var i = 0; i < splitArr.length; i++) {
+    if (i % 2 === 0) {
+      splitArr[i] *= 2;
+      if (splitArr[i] > 9) {
+        splitArr[i] -= 9;
+      }
     }
-    sum += doubleOddElementsArr[j];
+    sum += +splitArr[i];
   }
   if ((sum % 10) !== 0) {
     inputCard.setCustomValidity('Неверный номер карты!');
