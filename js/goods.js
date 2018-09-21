@@ -333,8 +333,33 @@ function setPriceLimit(rangePrice) {
 }
 
 // ПРОВЕРКА КАРТЫ ПО АЛГОРИТМУ ЛУНА:
-var inputCard = document.querySelector('#payment__card-number');
-inputCard.addEventListener('click', function () {
+// function orderFormHandler(eventForm) {
+//   var inputCard = document.querySelector('#payment__card-number');
+//   var inputCardValue = inputCard.value;
+//   var splitArr = inputCardValue.split('');
+//   var doubleOddElementsArr = [];
+//   for (var i = 0; i < splitArr.length; i++) {
+//     if ((parseInt(splitArr[i], 10) % 2) !== 0) {
+//       doubleOddElementsArr.push(splitArr[i] * 2);
+//     }
+//   }
+//   var sum = 0;
+//   for (var j = 0; j < doubleOddElementsArr.length; j++) {
+//     if (doubleOddElementsArr[j] >= 10) {
+//       doubleOddElementsArr[j] -= 9;
+//     }
+//     sum += doubleOddElementsArr[j];
+//   }
+//   if ((sum % 10) !== 0) {
+//     orderForm.validility.
+//     inputCard.setCustomValidity('Неверный номер карты!');
+//     // eventForm.preventDefault();
+//     // return false;
+//   }
+// }
+// var orderForm = document.querySelector('#order-form');
+// orderForm.addEventListener('submit', orderFormHandler);
+function validateFeeling(inputCard) {
   var inputCardValue = inputCard.value;
   var splitArr = inputCardValue.split('');
   var doubleOddElementsArr = [];
@@ -350,4 +375,7 @@ inputCard.addEventListener('click', function () {
     }
     sum += doubleOddElementsArr[j];
   }
-});
+  if ((sum % 10) !== 0) {
+    inputCard.setCustomValidity('Неверный номер карты!');
+  }
+}
