@@ -359,7 +359,8 @@ function setPriceLimit(rangePrice) {
 // }
 // var orderForm = document.querySelector('#order-form');
 // orderForm.addEventListener('submit', orderFormHandler);
-function validateFeeling(inputCard) {
+function cardNumberInputHandler(event) {
+  var inputCard = event.target;
   var inputCardValue = inputCard.value;
   var splitArr = inputCardValue.split('');
   var doubleOddElementsArr = [];
@@ -379,3 +380,5 @@ function validateFeeling(inputCard) {
     inputCard.setCustomValidity('Неверный номер карты!');
   }
 }
+var cardNumberInput = document.querySelector('#payment__card-number');
+cardNumberInput.addEventListener('input', cardNumberInputHandler);
