@@ -291,20 +291,20 @@ var fillBlock = function (block, createElement, data) {
 };
 fillBlock(loadBlock, renderCandy, candies);
 // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ФОРМЕ ОФОРМЛЕНИЯ ЗАКАЗА:
-var container = document.querySelector('.order');
-container.addEventListener('click', function (event) {
-  if (event.target.closest('.payment')) {
-    toSwitchTab(container, '.payment__card', '.payment__cash', '-wrap');
-  } else {
-    toSwitchTab(container, '.deliver__store', '.deliver__courier', '');
-  }
+var containerPayment = document.querySelector('.payment__method');
+containerPayment.addEventListener('click', function () {
+  toSwitchTab('.payment__card', '.payment__cash', '-wrap');
+});
+var containerDeliver = document.querySelector('.deliver__toggle');
+containerDeliver.addEventListener('click', function () {
+  toSwitchTab('.deliver__store', '.deliver__courier', '');
 });
 // СМЕНА ВКЛАДОК:
-function toSwitchTab(block, openClass, closeClass, specialString) {
+function toSwitchTab(openClass, closeClass, specialString) {
   if (event.target.id) {
-    var openWindow = block.querySelector(openClass + specialString);
-    var closeWindow = block.querySelector(closeClass + specialString);
-    var currentWindow = block.querySelector('.' + event.target.id + specialString);
+    var openWindow = document.querySelector(openClass + specialString);
+    var closeWindow = document.querySelector(closeClass + specialString);
+    var currentWindow = document.querySelector('.' + event.target.id + specialString);
     currentWindow.classList.remove('visually-hidden');
     if (currentWindow === openWindow) {
       closeWindow.classList.add('visually-hidden');
@@ -317,19 +317,65 @@ function toSwitchTab(block, openClass, closeClass, specialString) {
 // ОБРАБАТЫВАЕМ ОТПУСКАНИЕ .range__btn в фильтре по цене:
 var rangeFilter = document.querySelector('.range');
 rangeFilter.addEventListener('mouseup', function (event) {
+  var rangePrice = null;
   if (event.target.classList.contains('range__btn--left')) {
-    setPriceLimit('left', 'min', true);
+    rangePrice = document.querySelector('.range__price--min');
   } else if (event.target.classList.contains('range__btn--right')) {
-    setPriceLimit('right', 'max', false);
+    rangePrice = document.querySelector('.range__price--max');
   }
+  setPriceLimit(rangePrice);
 });
 // Изменение значения min и max цены в фильтре:
-function setPriceLimit(style, limit, isMin) {
-  var currentBtn = event.target;
-  style = window.getComputedStyle(currentBtn).getPropertyValue(style);
-  var value = +style.slice(0, -2) * 100 / 245;
-  var priceValue = null;
-  priceValue = isMin ? value : 100 - value;
-  var rangePrice = document.querySelector('.range__price--' + limit);
+function setPriceLimit(rangePrice) {
+  var leftIndent = event.target.offsetLeft;
+  var priceValue = Math.round(+leftIndent / 245 * 100);
   rangePrice.textContent = priceValue;
 }
+
+// ПРОВЕРКА КАРТЫ ПО АЛГОРИТМУ ЛУНА:
+// function orderFormHandler(eventForm) {
+//   var inputCard = document.querySelector('#payment__card-number');
+//   var inputCardValue = inputCard.value;
+//   var splitArr = inputCardValue.split('');
+//   var doubleOddElementsArr = [];
+//   for (var i = 0; i < splitArr.length; i++) {
+//     if ((parseInt(splitArr[i], 10) % 2) !== 0) {
+//       doubleOddElementsArr.push(splitArr[i] * 2);
+//     }
+//   }
+//   var sum = 0;
+//   for (var j = 0; j < doubleOddElementsArr.length; j++) {
+//     if (doubleOddElementsArr[j] >= 10) {
+//       doubleOddElementsArr[j] -= 9;
+//     }
+//     sum += doubleOddElementsArr[j];
+//   }
+//   if ((sum % 10) !== 0) {
+//     orderForm.validility.
+//     inputCard.setCustomValidity('Неверный номер карты!');
+//     // eventForm.preventDefault();
+//     // return false;
+//   }
+// }
+// var orderForm = document.querySelector('#order-form');
+// orderForm.addEventListener('submit', orderFormHandler);
+function cardNumberInputHandler() {
+  var inputCard = event.target;
+  var inputCardValue = inputCard.value;
+  var splitArr = inputCardValue.split('');
+  var sum = 0;
+  for (var i = 0; i < splitArr.length; i++) {
+    if (i % 2 === 0) {
+      splitArr[i] *= 2;
+      if (splitArr[i] > 9) {
+        splitArr[i] -= 9;
+      }
+    }
+    sum += +splitArr[i];
+  }
+  if ((sum % 10) !== 0) {
+    inputCard.setCustomValidity('Неверный номер карты!');
+  }
+}
+var cardNumberInput = document.querySelector('#payment__card-number');
+cardNumberInput.addEventListener('input', cardNumberInputHandler);
