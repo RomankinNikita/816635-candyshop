@@ -336,10 +336,7 @@ function cardNumberInputHandler() {
 var cardNumberInput = document.querySelector('#payment__card-number');
 cardNumberInput.addEventListener('input', cardNumberInputHandler);
 
-
-
-
-// Фильтр по цене:
+// ФИЛЬТР ПО ЦЕНЕ:
 var rangeFilter = document.querySelector('.range__filter'); // Блок слайдера
 var rangeFillLine = rangeFilter.querySelector('.range__fill-line'); // Ползунок слайдера
 var rangePricePinLeft = rangeFilter.querySelector('.range__btn--left'); // Левый пин
