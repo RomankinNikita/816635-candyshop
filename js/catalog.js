@@ -26,10 +26,10 @@
 
   function changeBasketTotal(index, isIncrease) {
     if (isIncrease) {
-      totalGoogs += candies[index].price;
+      totalGoogs += window.candies[index].price;
     } else {
       var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
-      totalGoogs -= candies[index].price * input.value;
+      totalGoogs -= window.candies[index].price * input.value;
     }
     basketHeaderAmount.textContent = 'В корзине ' + amount + ' товаров';
     goodsTotal.childNodes[0].textContent = 'Итого за ' + amount + ' товаров:';
@@ -37,11 +37,11 @@
   }
 
   function removeFromBasket(index, template, candyAmount) {
-    candies[index].isBasket = false;
+    window.candies[index].isBasket = false;
     amount -= 1;
     changeBasketTotal(index, false);
     template.remove();
-    candies[index].amount = candyAmount;
+    window.candies[index].amount = candyAmount;
     if (basket.children.length === 1) {
       changeEmptyBasketVisibility(false);
       basketHeaderAmount.textContent = 'В корзине ничего нет';
@@ -52,9 +52,9 @@
     var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
     switch (operation) {
       case 'increase':
-        if (candies[index].amount !== 0) {
+        if (window.candies[index].amount !== 0) {
           changeGoodsAmount(index, 'increment');
-          totalGoogs += candies[index].price;
+          totalGoogs += window.candies[index].price;
           totalAmount.textContent = totalGoogs + ' ₽';
           changeAmount(index, false);
         }
@@ -62,7 +62,7 @@
       case 'decrease':
         if (input.value > 1) {
           changeGoodsAmount(index, 'decrement');
-          totalGoogs -= candies[index].price;
+          totalGoogs -= window.candies[index].price;
           totalAmount.textContent = totalGoogs + ' ₽';
           changeAmount(index, true);
         }
@@ -74,9 +74,9 @@
 
   function changeAmount(index, isIncrease) {
     if (isIncrease) {
-      candies[index].amount += 1;
+      window.candies[index].amount += 1;
     } else {
-      candies[index].amount -= 1;
+      window.candies[index].amount -= 1;
     }
   }
 
@@ -110,12 +110,12 @@
   }
 
   function renderBasketGoods(index, template) {
-    if (!candies[index].isBasket) {
-      template.querySelector('.card-order__title').textContent = candies[index].name;
-      template.querySelector('.card-order__img').src = candies[index].picture;
-      template.querySelector('.card-order__price').textContent = candies[index].price + ' ₽';
+    if (!window.candies[index].isBasket) {
+      template.querySelector('.card-order__title').textContent = window.candies[index].name;
+      template.querySelector('.card-order__img').src = window.candies[index].picture;
+      template.querySelector('.card-order__price').textContent = window.candies[index].price + ' ₽';
       template.dataset.id = index;
-      candies[index].isBasket = true;
+      window.candies[index].isBasket = true;
       basket.appendChild(template);
       amount += 1;
     } else {
@@ -128,8 +128,8 @@
     event.preventDefault();
     var template = basketCardTemplate.cloneNode(true);
     var index = event.target.closest('.catalog__card').id;
-    var candyAmount = candies[index].amount;
-    if (candies[index].amount !== 0) {
+    var candyAmount = window.candies[index].amount;
+    if (window.candies[index].amount !== 0) {
       renderBasketGoods(index, template);
       changeBasketTotal(index, true);
 
@@ -162,7 +162,7 @@
     btnFav.classList.toggle('card__btn-favorite--selected');
     btnFav.blur();
     var index = btnFav.closest('.catalog__card').id;
-    candies[index].isFavorite = !candies[index].isFavorite;
+    window.candies[index].isFavorite = !window.candies[index].isFavorite;
   };
 
   var renderCandy = function (candy, id) {

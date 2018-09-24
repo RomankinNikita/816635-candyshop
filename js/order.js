@@ -40,8 +40,6 @@
       }
       sum += +splitArr[i];
     }
-    console.log(sum);
-    console.log(sum % 10);
 
     if (sum % 10 !== 0) {
       inputCard.setCustomValidity('Неверный номер карты!');
