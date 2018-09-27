@@ -1,3 +1,4 @@
+// Модуль для работы с формой заказа:
 'use strict';
 
 (function () {
@@ -24,34 +25,18 @@
       }
     }
   }
-
-  // алгоритм Луна
-  function cardNumberInputHandler() {
-    var inputCard = event.target;
-    var inputCardValue = inputCard.value;
-    var splitArr = inputCardValue.split('');
-    var sum = 0;
-    for (var i = 0; i < splitArr.length; i++) {
-      if (i % 2 === 0) {
-        splitArr[i] *= 2;
-        if (splitArr[i] > 9) {
-          splitArr[i] -= 9;
-        }
-      }
-      sum += +splitArr[i];
-    }
-
-    if (sum % 10 !== 0) {
-      inputCard.setCustomValidity('Неверный номер карты!');
-    }
-  }
-  var cardNumberInput = document.querySelector('#payment__card-number');
-  cardNumberInput.addEventListener('input', cardNumberInputHandler);
-
-  // Отключим поля указания адреса доставки курьером, если поле неактивно:
-  var deliverBox = document.querySelector('.deliver__courier');
-  var fieldSetCourier = document.querySelector('.deliver__entry-fields-wrap');
-  if (deliverBox.classList.contains('visually-hidden')) {
-    fieldSetCourier.disabled = 1;
-  }
+  // Форма:
+  var orderForm = document.querySelector('#order-form');
+  var successUploadHandler = function () {
+    orderForm.reset();
+    window.popup.modalSuccessSection.classList.remove('modal--hidden');
+    window.popup.closeSuccessPopup();
+  };
+  var errorUploadHandler = function (message) {
+    window.popup.closeErrorPopup(message);
+  };
+  orderForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.upload(new FormData(orderForm), successUploadHandler, errorUploadHandler);
+  });
 })();

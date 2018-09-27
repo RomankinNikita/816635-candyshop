@@ -1,7 +1,7 @@
+// Модуль работы с карточками товаров и корзиной покупок:
 'use strict';
 
 (function () {
-  // Корзина покупок:
   var basketCardTemplate = document.querySelector('#card-order').content.querySelector('.goods_card');
   var basket = document.querySelector('.goods__cards');
   var basketEmpty = basket.querySelector('.goods__card-empty');
@@ -12,14 +12,6 @@
 
   var amount = 0;
   var totalGoogs = 0;
-
-
-  // 2. Уберите у блока catalog__cards класс catalog__cards--load и скройте, добавлением класса visually-hidden блок catalog__load:
-  var loadBlock = document.querySelector('.catalog__cards');
-
-  loadBlock.classList.remove('catalog__cards--load');
-  var loadText = document.querySelector('.catalog__load');
-  loadText.classList.add('visually-hidden');
 
   // 2.1 На основе данных, созданных в предыдущем пункте и шаблона catalog__card, создайте DOM-элементы, соответствующие фотографиям и заполните их данными из массива:
   var similarCandyTemplate = document.querySelector('#card').content.querySelector('.catalog__card');
@@ -112,7 +104,7 @@
   function renderBasketGoods(index, template) {
     if (!window.candies[index].isBasket) {
       template.querySelector('.card-order__title').textContent = window.candies[index].name;
-      template.querySelector('.card-order__img').src = window.candies[index].picture;
+      template.querySelector('.card-order__img').src = 'img/cards/' + window.candies[index].picture;
       template.querySelector('.card-order__price').textContent = window.candies[index].price + ' ₽';
       template.dataset.id = index;
       window.candies[index].isBasket = true;
@@ -164,8 +156,8 @@
     var index = btnFav.closest('.catalog__card').id;
     window.candies[index].isFavorite = !window.candies[index].isFavorite;
   };
-
-  var renderCandy = function (candy, id) {
+  // ФУНКЦИЯ ГЕНЕРАЦИИ КАРТОЧКИ ТОВАРА:
+  window.renderCandy = function (candy, id) {
     var candyElement = similarCandyTemplate.cloneNode(true);
     var cardTitle = candyElement.querySelector('.card__title');
     var candyImage = candyElement.querySelector('.card__img');
@@ -187,7 +179,7 @@
     // название вставьте в блок card__title:
     cardTitle.textContent = candy.name;
     // изменим картинку:
-    candyImage.src = candy.picture;
+    candyImage.src = 'img/cards/' + candy.picture;
     // содержимое блока card__price должно выглядеть следующим образом:{{price}} <span class="card__currency">₽</span><span class="card__weight">/ {{weight}} Г</span>:
     candyPrice.textContent = candy.price;
     var candyPriceSpanFirst = document.createElement('span');
@@ -218,15 +210,4 @@
 
     return candyElement;
   };
-
-  // ОТРИСОВКА сгенерированных DOM-элементов в блок .catalog__cards:
-  var fillBlock = function (block, createElement, data) {
-    var fragment = document.createDocumentFragment();
-
-    data.forEach(function (item, i) {
-      fragment.appendChild(createElement(item, i));
-    });
-    block.appendChild(fragment);
-  };
-  fillBlock(loadBlock, renderCandy, window.candies);
 })();
