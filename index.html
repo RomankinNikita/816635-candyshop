@@ -87,8 +87,8 @@
               <button class="range__btn range__btn--right" type="button">правый ползунок</button>
             </div>
             <div class="range__prices">
-              <span class="range__price range__price--min">340</span>
-              <span class="range__price range__price--max">1260</span>
+              <span class="range__price range__price--min">15</span>
+              <span class="range__price range__price--max">73</span>
             </div>
           </section>
 
@@ -144,7 +144,7 @@
     <section class="buy">
       <h2 class="visually-hidden">Оформление покупки</h2>
 
-      <form action="/" method="post" id="order-form">
+      <form action="https://js.dump.academy/candyshop" method="post" enctype="multipart/form-data" autocomplete="off" id="order-form">
         <section class="goods">
           <div class="goods__wrap container">
             <h2 class="group-title goods__title" id="basket">Твои покупки</h2>
@@ -401,18 +401,18 @@
     </div>
   </footer>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--hidden" id="modal-error">
     <div class="modal__inner">
-      <button class="modal__close" type="button">Закрыть окно</button>
+      <button class="modal__close" type="button" id="error__close-btn">Закрыть окно</button>
       <h3 class="modal__title">Произошла ошибка!</h3>
       <p class="modal__message">Код ошибки: 404.</p>
       <p class="modal__message">Пожалуйста, перезагрузите страницу.</p>
     </div>
   </section>
 
-  <section class="modal modal--hidden">
+  <section class="modal modal--hidden" id="modal-success">
     <div class="modal__inner">
-      <button class="modal__close" type="button">Закрыть окно</button>
+      <button class="modal__close" type="button" id="success__close-btn">Закрыть окно</button>
       <h3 class="modal__title">Данные успешно отправлены!</h3>
     </div>
   </section>
@@ -483,6 +483,7 @@
     </div>
   </template>
 
+  <script src="js/backend.js"></script>
   <script src="js/data.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/order.js"></script>

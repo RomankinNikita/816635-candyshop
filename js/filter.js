@@ -75,7 +75,7 @@
     } else {
       rangeFillLine.style.right = (rangeFilter.offsetWidth - pin.offsetLeft - pinWidth / 2) + 'px'; // Применим через стили крайнее правое полож. ползунка
     }
-    rangePrice.textContent = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 1400 + 100); // Установим значение цены, соответствующее положению пина
+    rangePrice.textContent = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90); // Установим значение цены, соответствующее положению пина
   };
 
   rangeFilter.addEventListener('mousedown', mouseDownHandler);
