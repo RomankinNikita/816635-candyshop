@@ -48,10 +48,10 @@
     loadBlock.classList.remove('catalog__cards--load');
     loadText.classList.add('visually-hidden');
     window.candies = data;
-    var fillBlock = function (block, createElement, data) {
+    var fillBlock = function (block, createElement, dataArr) {
       var fragment = document.createDocumentFragment();
 
-      data.forEach(function (item, i) {
+      dataArr.forEach(function (item, i) {
         fragment.appendChild(createElement(item, i));
       });
       block.appendChild(fragment);
