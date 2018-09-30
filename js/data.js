@@ -43,21 +43,22 @@
   };
 
   var successDataHandler = function (data) {
-    var loadBlock = document.querySelector('.catalog__cards');
-    var loadText = document.querySelector('.catalog__load');
-    loadBlock.classList.remove('catalog__cards--load');
-    loadText.classList.add('visually-hidden');
-    window.candies = data;
-    var fillBlock = function (block, createElement, dataArr) {
-      var fragment = document.createDocumentFragment();
+    var loadBlock = document.querySelector('.catalog__cards'); // При успешной
+    var loadText = document.querySelector('.catalog__load'); // загрузке данных
+    loadBlock.classList.remove('catalog__cards--load'); // уберем блок:
+    loadText.classList.add('visually-hidden'); // "Данные загружаются"
 
+    window.candies = data; // Массив с данными, полученными с сервера
+
+    window.fillBlock = function (block, createElement, dataArr) { // Отрисуем карточки товаров
+      var fragment = document.createDocumentFragment();
       dataArr.forEach(function (item, i) {
         fragment.appendChild(createElement(item, i));
       });
       block.appendChild(fragment);
     };
-    fillBlock(loadBlock, window.renderCandy, window.candies);
+    window.fillBlock(loadBlock, window.renderCandy, window.candies);
+    window.setFilter(loadBlock);
   };
-
   window.load(successDataHandler, errorDataHandler);
 })();

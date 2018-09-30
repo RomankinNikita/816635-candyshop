@@ -29,7 +29,7 @@
           <ul class="catalog__filter">
             <li class="input-btn">
               <input class="input-btn__input visually-hidden input-btn__input--checkbox" name="food-type" value="icecream" type="checkbox" id="filter-icecream" >
-              <label class="input-btn__label input-btn__label--checkbox" for="filter-icecream">Мороженное</label>
+              <label class="input-btn__label input-btn__label--checkbox" for="filter-icecream">Мороженое</label>
               <span class="input-btn__item-count">(7)</span>
             </li>
 
@@ -332,7 +332,7 @@
             </div>
 
             <div class="deliver__courier visually-hidden">
-              <fieldset class="deliver__entry-fields-wrap">
+              <fieldset class="deliver__entry-fields-wrap" disabled>
                 <legend class="deliver__courier-title">Куда завозить?</legend>
 
                 <ul class="deliver__address-entry-fields">
@@ -484,6 +484,7 @@
   </template>
 
   <script src="js/backend.js"></script>
+  <script src="js/filter__count-value.js"></script>
   <script src="js/data.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/order.js"></script>
