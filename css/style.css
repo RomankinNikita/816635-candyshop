@@ -964,7 +964,7 @@ body {
   margin: 0;
   margin-bottom: 30px;
 }
-.payment__card-wrap {
+.payment__card {
   display: flex;
   justify-content: space-between;
 }

@@ -2,56 +2,76 @@
 'use strict';
 
 (function () {
-  // Поля формы с информацией о способе доставки
-  var deliverStoreFieldset = document.querySelector('.deliver__stores');
-  var deliverCourierFieldset = document.querySelector('.deliver__entry-fields-wrap');
-
-function switchFieldsetSubmit(fieldOne, fieldTwo) { // fieldset enabled/disabled
-  fieldOne.disabled = true;
-  fieldTwo.disabled = false;
-};
-
-var cardWrap = document.querySelector('.payment__card-wrap'); // Поля формы заполнения данных банковской карты
-
+  var orderForm = document.querySelector('#order-form'); // Форма заказа
 
   // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК В ФОРМЕ ОФОРМЛЕНИЯ ЗАКАЗА:
-  var containerPayment = document.querySelector('.payment__method');
-  containerPayment.addEventListener('click', function () {
-    toSwitchTab('.payment__card', '.payment__cash', '-wrap');
-  });
-  var containerDeliver = document.querySelector('.deliver__toggle');
-  containerDeliver.addEventListener('click', function (event) {
-    toSwitchTab('.deliver__store', '.deliver__courier', '', deliverCourierFieldset, deliverStoreFieldset);
-  }, true);
-  // СМЕНА ВКЛАДОК:
-  function toSwitchTab(openClass, closeClass, specialString, fieldOne, fieldTwo) {
-    if (event.target.id) {
-      var openWindow = document.querySelector(openClass + specialString);
-      var closeWindow = document.querySelector(closeClass + specialString);
-      var currentWindow = document.querySelector('.' + event.target.id + specialString);
-      currentWindow.classList.remove('visually-hidden');
-      if (currentWindow === openWindow) {
-        closeWindow.classList.add('visually-hidden');
-        switchFieldsetSubmit(fieldOne, fieldTwo);
-      } else {
-        openWindow.classList.add('visually-hidden');
-        switchFieldsetSubmit(fieldTwo, fieldOne);
-      }
+  function toDisableInputs(inputs, value) { // активация/деактивация полей формы
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].disabled = value;
     }
-  }
+  };
+
+  function toSwitchHidden(switchEvt, className, blockOne, blockTwo) {
+    var inputsOne = blockOne.querySelectorAll('input');
+    var inputsTwo = blockTwo.querySelectorAll('input');
+
+    if (switchEvt.target.id === className) {
+      blockOne.classList.remove('visually-hidden');
+      blockTwo.classList.add('visually-hidden');
+      toDisableInputs(inputsOne, false);
+      toDisableInputs(inputsTwo, true);
+    }
+  };
+
+  function switchMethodBlock(evt, classOne, classTwo) {
+    var methodBlockOne = document.querySelector('.' + classOne);
+    var methodBlockTwo = document.querySelector('.' + classTwo);
+    toSwitchHidden(evt, classOne, methodBlockOne, methodBlockTwo);
+    toSwitchHidden(evt, classTwo, methodBlockTwo, methodBlockOne);
+    orderForm.elements['deliver-description'].disabled = (methodBlockTwo.classList.contains('visually-hidden')) ? true : false;
+  };
+
+  orderForm.addEventListener('change', function (event) {
+    event.preventDefault();
+    if (event.target.name === 'pay-method') {
+      switchMethodBlock(event, 'payment__card', 'payment__cash');
+    }
+    if (event.target.name === 'method-deliver') {
+      switchMethodBlock(event, 'deliver__store', 'deliver__courier');
+    }
+  })
 
   // Форма:
-  var orderForm = document.querySelector('#order-form'); // Форма заказа
+  var cardDate = orderForm['card-date'];
+  var cardCvc = orderForm['card-cvc'];
+  var cardHolderName = orderForm.cardholder;
+  var cardNumber = orderForm['card-number'];
+  var deliverStreet = orderForm['deliver-street'];
+  var deliverHouse = orderForm['deliver-house'];
+  var deliverFloor = orderForm['deliver-floor'];
+  var deliverRoom = orderForm['deliver-room'];
+  var formName = orderForm.name;
+  var formTel = orderForm.tel;
+  var formEmail = orderForm.email;
+
+
+  var regExObj = {
+    nameRegExp: /^[a-zA-ZА-Яа-яЁё]+$/,
+    emailRegExp: /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/,
+    cardDateRegExp: /^((0[1-9])|(1[0-2]))\/(\d{2})$/, // 4272290303583157
+    cardHolderRegExp: /^[a-zA-Z ]*$/,
+  };
   var valid = true;
 
   function renderError(elem, text) { // Функция отрисовки ошибки
-    var p = document.createElement('p');
+    var errorElem = document.createElement('p');
     elem.style.border = '2px solid red';
-    p.textContent = text;
-    elem.parentElement.appendChild(p);
-    var focusHandler = function () {
+    errorElem.textContent = text;
+    elem.parentElement.appendChild(errorElem);
+    var focusHandler = function (evt) {
+      evt.preventDefault();
       valid = true;
-      p.remove();
+      errorElem.remove();
       elem.style.border = '';
       elem.addEventListener('blur', blurHandler);
     };
@@ -60,6 +80,25 @@ var cardWrap = document.querySelector('.payment__card-wrap'); // Поля фор
       elem.removeEventListener('blur', blurHandler);
     };
     elem.addEventListener('focus', focusHandler);
+  };
+
+  function toCheckCardNumber(numberValue) {
+    var splitArr = numberValue.split('');
+    var sum = 0;
+    for (var i = 0; i < splitArr.length; i++) {
+      if (i % 2 === 0) {
+        splitArr[i] *= 2;
+        if (splitArr[i] > 9) {
+          splitArr[i] -= 9;
+        }
+      }
+      sum += +splitArr[i];
+    }
+
+    if (sum % 10 !== 0) {
+      return false;
+    }
+    return true;
   };
 
   var successUploadHandler = function () {
@@ -72,34 +111,112 @@ var cardWrap = document.querySelector('.payment__card-wrap'); // Поля фор
   };
   orderForm.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    if (orderForm.name.length > 20) {
+    // ИМЯ
+    if (formName.value.length > 20) {
       valid = false;
-      renderError(orderForm.name, 'Поле не должно содержать больше 20 символов');
+      renderError(formName, 'Поле не должно содержать больше 20 символов!');
     }
-    if (orderForm.name.length < 2) {
+    if (formName.value.length < 2) {
       valid = false;
-      renderError(orderForm.name, 'Поле должно содержать не меньше 2 символов');
+      renderError(formName, 'Поле должно содержать не меньше 2 символов!');
     }
-    if (orderForm.name.length === 0) {
+    if (!regExObj.nameRegExp.test(formName.value)) {
       valid = false;
-      renderError(orderForm.name, 'Укажите Ваше имя');
+      renderError(formName, 'Поле должно содержать текст!');
     }
-    // Спросить про проверку на формат
-    if (orderForm.tel.length > 15) {
+    // ТЕЛЕФОН
+    if (formTel.value.length < 1) {
       valid = false;
-      renderError(orderForm.name, 'Поле не должно содержать больше 15 символов');
+      renderError(formTel, 'Это поле, обязательное для заполнения!');
     }
-    if (orderForm.tel.length < 6) {
-      valid = false;
-      renderError(orderForm.name, 'Поле должно содержать не меньше 6 символов');
+    // ПОЧТА
+    if (formEmail.value.length !== 0) {
+      if (!regExObj.emailRegExp.test(formEmail.value)) {
+        valid = false;
+        renderError(formEmail, 'Введите корректный адрес');
+      }
     }
-    if (orderForm.tel.length === 0) {
+    // НОМЕР КАРТЫ
+    if (cardNumber.value.length !== 16 && cardNumber.disabled === false) {
       valid = false;
-      renderError(orderForm.name, 'Укажите Ваш телефон');
+      renderError(cardNumber, 'Введите 16-значный номер карты!');
+    }
+    if (!toCheckCardNumber(cardNumber.value) && cardNumber.disabled === false) {
+      valid = false;
+      renderError(cardNumber, 'Номер карты некорректен');
+    }
+    // СРОК ДЕЙСТВИЯ
+    if (cardDate.value.length < 1 && cardDate.disabled === false) {
+      valid = false;
+      renderError(cardDate, 'Обязательное поле!');
+    }
+    if (!regExObj.cardDateRegExp.test(cardDate.value)) {
+      valid = false;
+      renderError(cardDate, 'Введите дату в формате мм/гг');
+    }
+    // CVC
+    if (cardCvc.value.length !== 3 && cardCvc.disabled === false) {
+      valid = false;
+      renderError(cardCvc, 'Введите трехзначный код!')
+    }
+    if (cardCvc.value < 100 && cardCvc.disabled === false) {
+      valid = false;
+      renderError(cardCvc, 'Введите значение от 100 до 999')
+    }
+    // ИМЯ ДЕРЖАТЕЛЯ КАРТЫ
+    if (cardHolderName.value.length > 20 && cardHolderName.disabled === false) {
+      valid = false;
+      renderError(cardHolderName, 'Поле не должно содержать больше 20 символов!');
+    }
+    if (cardHolderName.value.length < 2 && cardHolderName.disabled === false) {
+      valid = false;
+      renderError(cardHolderName, 'Поле должно содержать не меньше 2 символов!');
+    }
+    if (!regExObj.cardHolderRegExp.test(cardHolderName.value) && cardHolderName.disabled === false) {
+      valid = false;
+      renderError(cardHolderName, 'Поле должно содержать текст!');
+    }
+    // УЛИЦА
+    if (deliverStreet.value.length < 1 && deliverStreet.disabled === false) {
+      valid = false;
+      renderError(deliverStreet, 'Обязательное поле!');
+    }
+    // ДОМ
+    if (deliverHouse.value.length < 1 && deliverHouse.disabled === false) {
+      valid = false;
+      renderError(deliverHouse, 'Обязательное поле!');
+    }
+    // ЭТАЖ
+    if (isNaN(deliverFloor.value) && deliverFloor.disabled === false) {
+      valid = false;
+      renderError(deliverFloor, 'Введите число!');
+    }
+    // КВАРТИРА
+    if (deliverRoom.value.length < 1 && deliverRoom.disabled === false) {
+      valid = false;
+      renderError(deliverRoom, 'Обязательное поле!');
     }
     if (valid) {
-      orderForm.submit();
+      window.upload(new FormData(orderForm), successUploadHandler, errorUploadHandler);
+      console.log('Отправил');
     }
-    window.upload(new FormData(orderForm), successUploadHandler, errorUploadHandler);
+  });
+
+  // Смена карты метро:
+  var storeImg = document.querySelector('.deliver__store-map-img');
+  var subwayList = document.querySelector('.deliver__store-list');
+  subwayList.addEventListener('change', function (evt) {
+    storeImg.src = 'img/map/' + event.target.value + '.jpg';
+  });
+  // Статус карты:
+  var cardStatus = document.querySelector('.payment__card-status');
+  var cardInputList = document.querySelector('.payment__inputs');
+  cardInputList.addEventListener('input', function (evt) {
+    var valid = true;
+    // НОМЕР КАРТЫ
+    // if (!regExObj.cardDateRegExp.test(cardDate.value)) {
+    // 4272290303583157
+    valid = (!(!regExObj.cardDateRegExp.test(cardDate.value)) && !(cardNumber.value.length !== 16) && !(!toCheckCardNumber(cardNumber.value)) && !(cardDate.value.length < 1) && !(cardCvc.value < 100) && !(cardCvc.value < 100) && !(cardHolderName.value.length < 2) && !(!regExObj.cardHolderRegExp.test(cardHolderName.value))) ? true : false;
+    cardStatus.textContent = valid ? 'Одобрен' : 'Не определён';
   });
 })();

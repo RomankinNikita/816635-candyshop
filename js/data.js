@@ -1,6 +1,7 @@
 // Модуль, который создаёт данные:
 'use strict';
 (function () {
+  var candies = null;
   window.popup = {
     modalErrorMessage: document.querySelector('.modal__message'),
     modalErrorSection: document.querySelector('#modal-error'),
@@ -41,15 +42,15 @@
   var errorDataHandler = function (message) {
     window.popup.closeErrorPopup(message);
   };
-
+  var loadData = new Event('loadData', {bubbles: true, cancelable: true});
   var successDataHandler = function (data) {
     var loadBlock = document.querySelector('.catalog__cards'); // При успешной
     var loadText = document.querySelector('.catalog__load'); // загрузке данных
     loadBlock.classList.remove('catalog__cards--load'); // уберем блок:
     loadText.classList.add('visually-hidden'); // "Данные загружаются"
-
+    candies = data;
     window.candies = data; // Массив с данными, полученными с сервера
-
+    document.dispatchEvent(loadData);
     window.fillBlock = function (block, createElement, dataArr) { // Отрисуем карточки товаров
       var fragment = document.createDocumentFragment();
       dataArr.forEach(function (item, i) {
@@ -58,7 +59,12 @@
       block.appendChild(fragment);
     };
     window.fillBlock(loadBlock, window.renderCandy, window.candies);
-    window.setFilter(loadBlock);
   };
   window.load(successDataHandler, errorDataHandler);
+
+  window.data = {
+    get: function() {
+      return candies;
+    }
+  }
 })();
