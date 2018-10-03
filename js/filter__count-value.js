@@ -3,9 +3,12 @@
 (function () {
 
   var form = document.querySelector('.catalog__sidebar form');
+  var inputBtnCounts = form.querySelectorAll('.input-btn__item-count');
+  var documentBody = document.querySelector('body');
   var startArr;
   var resultArr;
   var dataCopy;
+  var property;
   var filterMap = {
     kind: {
       'icecream': {
@@ -30,7 +33,7 @@
       }
     },
     nutritionFacts: {
-      'sugar-free': {
+      'sugar': {
         value: false,
         isOn: false
       },
@@ -38,276 +41,107 @@
         value: true,
         isOn: false
       },
-      'gluten-free': {
+      'gluten': {
         value: false,
         isOn: false
       },
     }
   };
 
-  document.addEventListener('loadData', function () {
+  function toSwitchProperty(eTarName, propFirst, propSecond, value) { // Учитывает input.ckecked
+    if (event.target.name === eTarName) {
+      filterMap[propFirst][propSecond].isOn = value;
+    }
+  };
+
+  function toFilterArr(propOne, propTwo, value, isSingle) { // Фильтрует массив
+    resultArr = startArr.filter(function (item) {
+      if (filterMap[propOne][propTwo].isOn) {
+        return (isSingle) ? item[propOne] === value : item[propOne][propTwo] === value;
+      }
+      return item;
+    });
+    startArr = resultArr;
+    return startArr;
+  };
+
+  document.addEventListener('loadData', function () { // Ловим готовность страницы
     dataCopy = window.candies.slice();
+    var toFilterForCounts = function (ind) {
+      var filtered = dataCopy.filter(function (elem) {
+        var conditions = [(elem.kind === 'Мороженое'), (elem.kind === 'Газировка'), (elem.kind === 'Жевательная резинка'), (elem.kind === 'Мармелад'), (elem.kind === 'Зефир'), (elem.nutritionFacts.sugar === false), (elem.nutritionFacts.vegetarian === true), (elem.nutritionFacts.gluten === false), (elem.isFavorite === true), (elem.amount > 0)];
+        var condition = conditions[ind];
+        return condition;
+      });
+      return filtered;
+    };
+    var setValue = function (index) { // Запишем значение счетчика товара в фильтре
+      var value = toFilterForCounts(index);
+      inputBtnCounts[index].textContent = '(' + value.length + ')';
+    };
+
+    for (var i = 0; i < inputBtnCounts.length; i++) {
+      setValue(i);
+    }
   });
 
-  form.addEventListener('change', function (event) {
+  form.addEventListener('change', function (event) { // Слушаем изменения в форме фильтра
     event.preventDefault();
-    var property = event.target.value;
+    property = event.target.value;
+console.log('jhjhj');
 
     if (event.target.checked) { // if checked enable
-      if (event.target.name === 'food-type') {
-        filterMap.kind[property].isOn = true;
-      }
-      if (event.target.name === 'food-property') {
-        filterMap.nutritionFacts[property].isOn = true;
-      }
+      toSwitchProperty('food-type', 'kind', property, true);
+      toSwitchProperty('food-property', 'nutritionFacts', property, true);
     } else { // if !checked disable
-      if (event.target.name === 'food-type') {
-        filterMap.kind[property].isOn = false;
-      }
-      if (event.target.name === 'food-property') {
-        filterMap.nutritionFacts[property].isOn = false;
-      }
+      toSwitchProperty('food-type', 'kind', property, false);
+      toSwitchProperty('food-property', 'nutritionFacts', property, false);
     }
 
     startArr = dataCopy;
-    // icecream
-    resultArr = startArr.filter(function (item) {
-      if (filterMap.kind.icecream.isOn) {
-        return item.kind === 'Мороженое';
+    toFilterArr('kind', 'icecream', 'Мороженое', true);
+    toFilterArr('kind', 'soda', 'Газировка', true);
+    toFilterArr('kind', 'gum', 'Жевательная резинка', true);
+    toFilterArr('kind', 'marmalade', 'Мармелад', true);
+    toFilterArr('kind', 'marshmallows', 'Зефир', true);
+    toFilterArr('nutritionFacts', 'sugar', false, false);
+    toFilterArr('nutritionFacts', 'vegetarian', true, false);
+    toFilterArr('nutritionFacts', 'gluten', false, false);
+    if (event.target.value === 'availability') { // Фильтр 'в наличии'
+      if (event.target.checked === false) {
+        for (var i = 0; i < form.elements.length; i++) {
+          form.elements[i].checked = false;
+          console.log(form.elements[i].checked);
+        }
+        event.target.checked = true;
+        startArr = dataCopy;
+        resultArr = startArr.filter(function (item) {
+          return item.amount > 0;
+        });
+        startArr = resultArr;
+      } else {
+        event.target.checked = false;
+        startArr = dataCopy;
       }
-      return item;
-    });
-    startArr = resultArr;
-    // soda
-    resultArr = startArr.filter(function (item) {
-      if (filterMap.kind.soda.isOn) {
-        return item.kind === 'Газировка';
-      }
-      return item;
-    });
-    startArr = resultArr;
-    // sugar
-    resultArr = startArr.filter(function (item) {
-      if (filterMap.nutritionFacts['sugar-free'].isOn) {
-        return item.nutritionFacts.sugar === false;
-      }
-      return item;
-    });
-    startArr = resultArr;
-    // vegetarian
-    resultArr = startArr.filter(function (item) {
-      if (filterMap.nutritionFacts['vegetarian'].isOn) {
-        return item.nutritionFacts.vegetarian === false;
-      }
-      return item;
-    });
-    startArr = resultArr;
-    // gluten
-    resultArr = startArr.filter(function (item) {
-      if (filterMap.nutritionFacts['gluten-free'].isOn) {
-        return item.nutritionFacts.gluten === false;
-      }
-      return item;
-    });
-    startArr = resultArr;
+    }
+    if (!startArr.length) { // Ничто не подходит под фильтры
+      var filterErrorTemplate = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
+      var filterErrorBox = filterErrorTemplate.cloneNode(true);
+      Object.assign(filterErrorBox.style,{'padding':'5px','width':'500px','color':'white','fontsize':'30px','text-align':'center','position':"absolute",'left':'35%','height':'150px','background-color':'#6e58d9','border':'3px solid #6e58a9'});
+      window.loadBlock.before(filterErrorBox);
+      var filterErrorHandler = function (evt) {
+        evt.preventDefault();
+        filterErrorBox.remove();
+        document.removeEventListener('click', filterErrorHandler);
+        startArr = dataCopy;
+        window.fillBlock(window.loadBlock, window.renderCandy, startArr);
+      };
+      document.addEventListener('click', filterErrorHandler);
+    }
     console.log(startArr);
-
+    while (window.loadBlock.firstChild) { // Clean loadBlock
+      window.loadBlock.removeChild(loadBlock.firstChild);
+    }
+    window.fillBlock(window.loadBlock, window.renderCandy, startArr);
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // var form = document.querySelector('.catalog__sidebar form');
-  // var foodTypeInputs = form.elements[name = "food-type"]; // form.inputs.name=food
-
-
-  // var kindMap = { // Объект с критериями фильтрации
-  //   kind: {
-  //     'icecream': 'Мороженое',
-  //     'soda': 'Газировка',
-  //     'gum': 'Жевательная резинка',
-  //     'marmalade': 'Мармелад',
-  //     'marshmallows': 'Зефир'
-  //   },
-  //   nutritionFacts: {
-  //     'sugar': false,
-  //     'vegetarian': true,
-  //     'gluten': false
-  //   },
-  // };
-
-  // document.addEventListener('loadData', function () {
-  //   var dataCopy = window.candies.slice();
-
-  //   function filterArr(inputValue, property, value) { // Фильтрует по указанному критерию
-  //     var arr = dataCopy.filter(function (elem) {
-  //       if (inputValue === 'food-type') {
-  //         return elem['' + property] === value;
-  //       }
-  //       if (inputValue === 'food-property') {
-  //         return elem['' + Object.keys(kindMap)[1]]['' + property] === value;
-  //       }
-  //       return elem['amount'] > 0;
-  //     });
-  //     return arr;
-  //   };
-  //   var filteredArrs = { // Объект с результатами фильтрации по каждому варианту
-  //     'filteredIcecream': filterArr('food-type', Object.keys(kindMap)[0], kindMap.kind.icecream),
-  //     'filteredSoda': filterArr('food-type', Object.keys(kindMap)[0], kindMap.kind.soda),
-  //     'filteredGum': filterArr('food-type', Object.keys(kindMap)[0], kindMap.kind.gum),
-  //     'filteredMarmalade': filterArr('food-type', Object.keys(kindMap)[0], kindMap.kind.marmalade),
-  //     'filteredMarshmallows': filterArr('food-type', Object.keys(kindMap)[0], kindMap.kind.marshmallows),
-  //     'filteredSugar': filterArr('food-property', Object.keys(kindMap['nutritionFacts'])[0], kindMap.nutritionFacts.sugar),
-  //     'filteredVegetarian': filterArr('food-property', Object.keys(kindMap['nutritionFacts'])[1], kindMap.nutritionFacts.vegetarian),
-  //     'filteredGluten': filterArr('food-property', Object.keys(kindMap['nutritionFacts'])[2], kindMap.nutritionFacts.gluten),
-  //     'filteredAmount': filterArr()
-  //   };
-  //   console.log(filteredArrs['filteredIcecream']);
-  //   console.log(filteredArrs['filteredSoda']);
-  //   console.log(filteredArrs['filteredGum']);
-  //   console.log(filteredArrs['filteredMarmalade']);
-  //   console.log(filteredArrs['filteredMarshmallows']);
-  //   console.log(filteredArrs['filteredSugar']);
-  //   console.log(filteredArrs['filteredVegetarian']);
-  //   console.log(filteredArrs['filteredGluten']);
-  //   console.log(filteredArrs['filteredAmount']);
-
-  // });
-  ///////////////
-  // for (var i = 0; i < array.length; i++) { // Присвоение значений счетчикам товаров
-
-  // }
-
-
-
-  // function toFilterData(property) { // kind = property
-  //     var newData = dataCopy.filter(function (elem) {
-  //       return event.target.value === kindMap[property][elem[property].toLowerCase()];
-  //     });
-  //     console.log(newData);
-  //     return newData;
-  // };
-
-
-  // form.addEventListener('change', function (event) {
-  //   event.preventDefault();
-
-  //   toFilterData('kind');
-
-  // });
-
-
-  // dataCopy.filter(function () {
-  //   return filterFunc(param1) && filterFunc(param2) && filterFunc(param3)....;
-  // });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // var form = document.querySelector('.catalog__sidebar form');
-  // var filterCounts = document.querySelectorAll('.input-btn__item-count'); // выберем все счетчики товаров в фильтрах
-  // var filterInputButtons = document.querySelectorAll('.input-btn__input--checkbox'); // Все инпуты фильтров
-  // //////
-
-  // var kindMap = {
-  //   'мороженое': 'icecream',
-  //   'газировка': 'soda',
-  //   'жевательная резинка': 'gum',
-  //   'мармелад': 'marmalade',
-  //   'зефир': 'marshmallows',
-  // }
-  // var property = {
-  //   'sugar' : false,
-  //   'vegetarian' : false,
-  //   'gluten-free': false
-  // }
-
-  // function filterKinds(kinds) {
-  //   var filteredCandy = [];
-  //   newData.forEach(function(item) {
-  //     if(kinds.includes(kindMap[item.kind.toLowerCase()])) {
-  //       filteredCandy.push(item);
-  //     }
-  //   });
-  //   return filteredCandy;
-  // };
-  // document.addEventListener('loadData', function() {
-  //     newData = window.candies.slice();
-  //   });
-  // form.addEventListener('change', function(event) {
-  //   event.preventDefault();
-  //   filterKinds()
-  // });
-  // var kinds = [];
-  // function switchKind(value) {
-  //   kinds.includes(value) ? kinds.splice(kinds.indexOf(value), 1) : kinds.push(value);
-  // }
-  // document.addEventListener('loadData', function() {
-  //   newData = window.candies.slice();
-  // });
-  // var newData = [];
-  // form.addEventListener('change', function(event) {
-  //   event.preventDefault();
-  //   console.log(event.target.value);
-  //   if(event.target.name === 'food-type') {
-  //     switchKind(event.target.value);
-  //     newData = filterKinds(kinds);
-  //   }
-  //   console.log(kinds)
-  //   if(event.target.name === 'food-property') {
-  //     property[event.target.value] = event.target.value === 'sugar' ? !event.target.checked : event.target.checked;
-  //     console.log(property)
-  //     newData = newData.filter(function(item) {
-  //       return item.nutritionFacts[event.target.value] === property[event.target.value];
-  //     });
-
-  //   }
-  //   console.log(newData);
-  // });
 })();

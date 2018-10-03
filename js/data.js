@@ -44,7 +44,7 @@
   };
   var loadData = new Event('loadData', {bubbles: true, cancelable: true});
   var successDataHandler = function (data) {
-    var loadBlock = document.querySelector('.catalog__cards'); // При успешной
+    window.loadBlock = document.querySelector('.catalog__cards'); // При успешной
     var loadText = document.querySelector('.catalog__load'); // загрузке данных
     loadBlock.classList.remove('catalog__cards--load'); // уберем блок:
     loadText.classList.add('visually-hidden'); // "Данные загружаются"
