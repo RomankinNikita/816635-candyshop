@@ -7,6 +7,7 @@
   var favorite = form.querySelector('#filter-favorite');
   var availability = form.querySelector('#filter-availability');
   var catalogBlock = document.querySelector('.catalog__cards');
+  var filterItemCount = document.querySelectorAll('.input-btn__item-count');
 
   var limitPrice = {
     min: 0,
@@ -30,6 +31,26 @@
     'мармелад': 'marmalade',
     'зефир': 'marshmallows'
   };
+
+  document.addEventListener('loadData', function () { // Ловим готовность страницы чтобы получить исходные данные
+    var dataCopy = window.data.get();
+    var toFilterForCounts = function (ind) {
+      var filtered = dataCopy.filter(function (elem) {
+        var conditions = [(elem.kind === 'Мороженое'), (elem.kind === 'Газировка'), (elem.kind === 'Жевательная резинка'), (elem.kind === 'Мармелад'), (elem.kind === 'Зефир'), (elem.nutritionFacts.sugar === false), (elem.nutritionFacts.vegetarian === true), (elem.nutritionFacts.gluten === false), (elem.isFavorite === true), (elem.amount > 0)];
+        var condition = conditions[ind];
+        return condition;
+      });
+      return filtered;
+    };
+    var setValue = function (index) { // Запишем значение счетчика товара в фильтре
+      var value = toFilterForCounts(index);
+      filterItemCount[index].textContent = '(' + value.length + ')';
+    };
+
+    for (var i = 0; i < filterItemCount.length; i++) { // Присвоим каждому счетчику его значение
+      setValue(i);
+    }
+  });
 
   function switchKind(target) {
     if (!filterCriteria.kinds.includes(target.value)) {
@@ -81,15 +102,14 @@
     window.slider.reset();
   };
 
-  function fillCatalogBlock(data) {
+  var fillCatalogBlock = window.debounce(function(data) {
     catalogBlock.innerHTML = '';
     window.fillBlock(catalogBlock, window.renderCandy, data);
-  };
+  });
 
   function sortPopularity(initData) {
     var data = initData.slice();
     fillCatalogBlock(data);
-    console.log(data);
   };
 
   function sortFromCheapToExpensive(initData) {
@@ -104,7 +124,6 @@
       }
     });
     fillCatalogBlock(data);
-    console.log(data);
   };
 
   function sortFromExpensiveToCheap(initData) {
@@ -119,7 +138,6 @@
       }
     });
     fillCatalogBlock(data);
-    console.log(data);
   };
 
   function sortRating(initData) {
@@ -134,19 +152,17 @@
       }
     });
     fillCatalogBlock(data);
-    console.log(data);
+  };
+  var submitHandler = function (sbmtEvt) {
+    sbmtEvt.preventDefault();
+    resetFilter(sbmtEvt);
+    fillCatalogBlock(window.data.get());
   };
 
   function filterHandler(event) {
     event.preventDefault();
     var target = event.target;
     var data = window.data.get();
-    var submitHandler = function (sbmtEvt) {
-      sbmtEvt.preventDefault();
-      resetFilter(target);
-      fillCatalogBlock(window.data.get());
-    };
-    form.addEventListener('submit', submitHandler);
 
     if (target === favorite) {
       resetFilter(target);
@@ -199,6 +215,7 @@
     }
   };
   form.addEventListener('change', filterHandler);
+  form.addEventListener('submit', submitHandler);
 
   document.addEventListener('changePrice', function (event) {
     limitPrice = event.price;
