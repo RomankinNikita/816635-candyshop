@@ -12,7 +12,7 @@
   var limitPrice = {
     min: 0,
     max: 90
-  }
+  };
 
   var filteredData = null;
 
@@ -59,11 +59,11 @@
       var index = filterCriteria.kinds.indexOf(target.value);
       filterCriteria.kinds.splice(index, 1);
     }
-  };
+  }
 
   function filterKind(item) {
     return filterCriteria.kinds.length ? filterCriteria.kinds.includes(kindMap[item.kind.toLowerCase()]) : true;
-  };
+  }
 
   function filterNutrition(item, field) {
     var result = true;
@@ -71,19 +71,19 @@
       result = field === 'sugar' || field === 'gluten' ? !item.nutritionFacts[field] : item.nutritionFacts[field];
     }
     return result;
-  };
+  }
 
   function filterPrice(item) {
     return item.price >= limitPrice.min && item.price <= limitPrice.max;
-  };
+  }
 
   function filterFavorite(item) {
     return favorite.checked ? item.isFavorite : true;
-  };
+  }
 
   function filterAvailability(item) {
     return availability.checked ? item.amount > 0 : true;
-  };
+  }
 
   function resetFilterCriteria(elem) {
     filterCriteria.kinds = [];
@@ -95,14 +95,14 @@
         item.checked = false;
       }
     });
-  };
+  }
 
   function resetFilter(target) {
     resetFilterCriteria(target);
     window.slider.reset();
-  };
+  }
 
-  var fillCatalogBlock = window.debounce(function(data) {
+  var fillCatalogBlock = window.debounce(function (data) {
     catalogBlock.innerHTML = '';
     window.fillBlock(catalogBlock, window.renderCandy, data);
   });
@@ -110,7 +110,7 @@
   function sortPopularity(initData) {
     var data = initData.slice();
     fillCatalogBlock(data);
-  };
+  }
 
   function sortFromCheapToExpensive(initData) {
     var data = initData.slice();
@@ -124,7 +124,7 @@
       }
     });
     fillCatalogBlock(data);
-  };
+  }
 
   function sortFromExpensiveToCheap(initData) {
     var data = initData.slice();
@@ -138,7 +138,7 @@
       }
     });
     fillCatalogBlock(data);
-  };
+  }
 
   function sortRating(initData) {
     var data = initData.slice();
@@ -152,7 +152,7 @@
       }
     });
     fillCatalogBlock(data);
-  };
+  }
   var submitHandler = function (sbmtEvt) {
     sbmtEvt.preventDefault();
     resetFilter(sbmtEvt);
@@ -205,7 +205,7 @@
         'color': 'white',
         'fontsize': '30px',
         'text-align': 'center',
-        'position': "absolute",
+        'position': 'absolute',
         'left': '35%',
         'height': '150px',
         'background-color': '#6e58d9',
@@ -213,7 +213,7 @@
       });
       catalogBlock.appendChild(filterErrorBox);
     }
-  };
+  }
   form.addEventListener('change', filterHandler);
   form.addEventListener('submit', submitHandler);
 

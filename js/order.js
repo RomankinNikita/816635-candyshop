@@ -9,7 +9,7 @@
     for (var i = 0; i < inputs.length; i++) {
       inputs[i].disabled = value;
     }
-  };
+  }
 
   function toSwitchHidden(switchEvt, className, blockOne, blockTwo) {
     var inputsOne = blockOne.querySelectorAll('input');
@@ -21,7 +21,7 @@
       toDisableInputs(inputsOne, false);
       toDisableInputs(inputsTwo, true);
     }
-  };
+  }
 
   function switchMethodBlock(evt, classOne, classTwo) {
     var methodBlockOne = document.querySelector('.' + classOne);
@@ -29,7 +29,7 @@
     toSwitchHidden(evt, classOne, methodBlockOne, methodBlockTwo);
     toSwitchHidden(evt, classTwo, methodBlockTwo, methodBlockOne);
     orderForm.elements['deliver-description'].disabled = (methodBlockTwo.classList.contains('visually-hidden')) ? true : false;
-  };
+  }
 
   orderForm.addEventListener('change', function (event) {
     event.preventDefault();
@@ -39,7 +39,7 @@
     if (event.target.name === 'method-deliver') {
       switchMethodBlock(event, 'deliver__store', 'deliver__courier');
     }
-  })
+  });
 
   // Форма:
   var cardDate = orderForm['card-date'];
@@ -80,7 +80,7 @@
       elem.removeEventListener('blur', blurHandler);
     };
     elem.addEventListener('focus', focusHandler);
-  };
+  }
 
   function toCheckCardNumber(numberValue) {
     var splitArr = numberValue.split('');
@@ -99,7 +99,7 @@
       return false;
     }
     return true;
-  };
+  }
 
   var successUploadHandler = function () {
     orderForm.reset();
@@ -150,18 +150,18 @@
       valid = false;
       renderError(cardDate, 'Обязательное поле!');
     }
-    if (!regExObj.cardDateRegExp.test(cardDate.value)) {
+    if (!regExObj.cardDateRegExp.test(cardDate.value) && cardDate.disabled === false) {
       valid = false;
       renderError(cardDate, 'Введите дату в формате мм/гг');
     }
     // CVC
     if (cardCvc.value.length !== 3 && cardCvc.disabled === false) {
       valid = false;
-      renderError(cardCvc, 'Введите трехзначный код!')
+      renderError(cardCvc, 'Введите трехзначный код!');
     }
     if (cardCvc.value < 100 && cardCvc.disabled === false) {
       valid = false;
-      renderError(cardCvc, 'Введите значение от 100 до 999')
+      renderError(cardCvc, 'Введите значение от 100 до 999');
     }
     // ИМЯ ДЕРЖАТЕЛЯ КАРТЫ
     if (cardHolderName.value.length > 20 && cardHolderName.disabled === false) {
@@ -198,7 +198,6 @@
     }
     if (valid) {
       window.upload(new FormData(orderForm), successUploadHandler, errorUploadHandler);
-      console.log('Отправил');
     }
   });
 
@@ -206,17 +205,16 @@
   var storeImg = document.querySelector('.deliver__store-map-img');
   var subwayList = document.querySelector('.deliver__store-list');
   subwayList.addEventListener('change', function (evt) {
+    evt.preventDefault();
     storeImg.src = 'img/map/' + event.target.value + '.jpg';
   });
   // Статус карты:
   var cardStatus = document.querySelector('.payment__card-status');
   var cardInputList = document.querySelector('.payment__inputs');
   cardInputList.addEventListener('input', function (evt) {
-    var valid = true;
-    // НОМЕР КАРТЫ
-    // if (!regExObj.cardDateRegExp.test(cardDate.value)) {
-    // 4272290303583157
-    valid = (!(!regExObj.cardDateRegExp.test(cardDate.value)) && !(cardNumber.value.length !== 16) && !(!toCheckCardNumber(cardNumber.value)) && !(cardDate.value.length < 1) && !(cardCvc.value < 100) && !(cardCvc.value < 100) && !(cardHolderName.value.length < 2) && !(!regExObj.cardHolderRegExp.test(cardHolderName.value))) ? true : false;
-    cardStatus.textContent = valid ? 'Одобрен' : 'Не определён';
+    evt.preventDefault();
+    var validate = true;
+    validate = (!(!regExObj.cardDateRegExp.test(cardDate.value)) && !(cardNumber.value.length !== 16) && !(!toCheckCardNumber(cardNumber.value)) && !(cardDate.value.length < 1) && !(cardCvc.value < 100) && !(cardCvc.value < 100) && !(cardHolderName.value.length < 2) && !(!regExObj.cardHolderRegExp.test(cardHolderName.value))) ? true : false;
+    cardStatus.textContent = validate ? 'Одобрен' : 'Не определён';
   });
 })();

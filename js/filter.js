@@ -81,6 +81,7 @@
     var pinWidth = pin.offsetWidth;
     var shift = eventName.clientX - rangeFilter.offsetLeft;
     var zeroValue = 0 + 'px';
+    var priceValue;
     if (eventName) {
       pin.style.left = (shift - pinWidth / 2) + 'px'; // Применим через стили полож. пина
     } else {
@@ -95,8 +96,12 @@
     } else {
       rangeFillLine.style.right = eventName ? (rangeFilter.offsetWidth - pin.offsetLeft - pinWidth / 2) + 'px' : zeroValue; // Применим через стили крайнее правое полож. ползунка
     }
-    var priceValue = eventName ? Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90) : (isLeft ? 0 : 90);
-    rangePrice.textContent = priceValue // Установим значение цены, соответствующее положению пина
+    if (eventName) {
+      priceValue = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90);
+    } else {
+      priceValue = (isLeft ? 0 : 90);
+    }
+    rangePrice.textContent = priceValue; // Установим значение цены, соответствующее положению пина
     return priceValue;
   };
 
@@ -107,5 +112,5 @@
       changePrice.price.min = setPriceRange(rangePricePinLeft, '', 'min', true);
       changePrice.price.max = setPriceRange(rangePricePinRight, '', 'max', false);
     }
-  }
+  };
 })();

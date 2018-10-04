@@ -155,7 +155,6 @@
     btnFav.blur();
     var index = btnFav.closest('.catalog__card').id;
     window.candies[index].isFavorite = !window.candies[index].isFavorite;
-    //window.setFilterCountValue(window.candies);
   };
   // ФУНКЦИЯ ГЕНЕРАЦИИ КАРТОЧКИ ТОВАРА:
   window.renderCandy = function (candy, id) {

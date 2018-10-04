@@ -63,8 +63,8 @@
   window.load(successDataHandler, errorDataHandler);
 
   window.data = {
-    get: function() {
+    get: function () {
       return candies;
     }
-  }
+  };
 })();
