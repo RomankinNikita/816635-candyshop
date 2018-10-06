@@ -1,11 +1,20 @@
 'use strict';
 
 (function () {
-  // ФИЛЬТР ПО ЦЕНЕ:
+  // // ФИЛЬТР ПО ЦЕНЕ:
   var rangeFilter = document.querySelector('.range__filter'); // Блок слайдера
   var rangeFillLine = rangeFilter.querySelector('.range__fill-line'); // Ползунок слайдера
   var rangePricePinLeft = rangeFilter.querySelector('.range__btn--left'); // Левый пин
   var rangePricePinRight = rangeFilter.querySelector('.range__btn--right'); // Правый пин
+
+  var changePrice = new Event('changePrice', {
+    bubbles: true,
+    cancelable: true
+  });
+  changePrice.price = {
+    min: 0,
+    max: 90
+  };
 
   var mouseDownHandler = function (downEvt) { // Обработчик mouseDown
     downEvt.preventDefault();
@@ -47,14 +56,15 @@
       upEvt.preventDefault();
 
       if (isLeft) { // Если левый пин
-        setPriceRange(currentPin, upEvt, 'min', true);
+        changePrice.price.min = setPriceRange(currentPin, upEvt, 'min', true);
       } else { // Если правый пин
-        setPriceRange(currentPin, upEvt, 'max', false);
+        changePrice.price.max = setPriceRange(currentPin, upEvt, 'max', false);
       }
-
+      document.dispatchEvent(changePrice);
       document.removeEventListener('mousemove', mouseMoveHandler); // Удалим все
       document.removeEventListener('mouseup', mouseUpHandler); // обработчики при
       document.removeEventListener('mousemove', mouseUpPreventHandler); // отпускании мыши
+
     };
 
     if (downEvt.target === currentPin) { // Если нажали на пин, то можно перетаскивать ползунок
@@ -69,14 +79,38 @@
   var setPriceRange = function (pin, eventName, rangeClass, isLeft) { // Установка значений слайдера и цены
     var rangePrice = document.querySelector('.range__price--' + rangeClass); // Минимальная цена
     var pinWidth = pin.offsetWidth;
-    pin.style.left = (eventName.clientX - rangeFilter.offsetLeft - pinWidth / 2) + 'px'; // Применим через стили полож. пина
-    if (isLeft) {
-      rangeFillLine.style.left = (eventName.clientX - rangeFilter.offsetLeft) + 'px'; // Применим через стили крайнее левое полож. ползунка
+    var shift = eventName.clientX - rangeFilter.offsetLeft;
+    var zeroValue = 0 + 'px';
+    var priceValue;
+    if (eventName) {
+      pin.style.left = (shift - pinWidth / 2) + 'px'; // Применим через стили полож. пина
     } else {
-      rangeFillLine.style.right = (rangeFilter.offsetWidth - pin.offsetLeft - pinWidth / 2) + 'px'; // Применим через стили крайнее правое полож. ползунка
+      if (isLeft) {
+        rangePricePinLeft.style.left = zeroValue;
+      } else {
+        rangePricePinRight.style.left = rangeFilter.offsetWidth + 'px';
+      }
     }
-    rangePrice.textContent = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90); // Установим значение цены, соответствующее положению пина
+    if (isLeft) {
+      rangeFillLine.style.left = eventName ? (shift) + 'px' : zeroValue; // Применим через стили крайнее левое полож. ползунка
+    } else {
+      rangeFillLine.style.right = eventName ? (rangeFilter.offsetWidth - pin.offsetLeft - pinWidth / 2) + 'px' : zeroValue; // Применим через стили крайнее правое полож. ползунка
+    }
+    if (eventName) {
+      priceValue = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90);
+    } else {
+      priceValue = (isLeft ? 0 : 90);
+    }
+    rangePrice.textContent = priceValue; // Установим значение цены, соответствующее положению пина
+    return priceValue;
   };
 
   rangeFilter.addEventListener('mousedown', mouseDownHandler);
+
+  window.slider = {
+    reset: function () {
+      changePrice.price.min = setPriceRange(rangePricePinLeft, '', 'min', true);
+      changePrice.price.max = setPriceRange(rangePricePinRight, '', 'max', false);
+    }
+  };
 })();
