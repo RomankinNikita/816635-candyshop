@@ -48,8 +48,7 @@
     var loadText = document.querySelector('.catalog__load'); // загрузке данных
     loadBlock.classList.remove('catalog__cards--load'); // уберем блок:
     loadText.classList.add('visually-hidden'); // "Данные загружаются"
-    candies = data;
-    window.candies = data; // Массив с данными, полученными с сервера
+    candies = data; // Массив с данными, полученными с сервера
     document.dispatchEvent(loadData);
     window.fillBlock = function (block, createElement, dataArr) { // Отрисуем карточки товаров
       var fragment = document.createDocumentFragment();
@@ -58,7 +57,8 @@
       });
       block.appendChild(fragment);
     };
-    window.fillBlock(loadBlock, window.renderCandy, window.candies);
+
+    window.fillBlock(loadBlock, window.renderCandy, candies);
   };
   window.load(successDataHandler, errorDataHandler);
 

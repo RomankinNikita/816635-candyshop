@@ -8,6 +8,7 @@
   var availability = form.querySelector('#filter-availability');
   var catalogBlock = document.querySelector('.catalog__cards');
   var filterItemCount = document.querySelectorAll('.input-btn__item-count');
+  var documentMain = document.querySelector('main');
 
   var limitPrice = {
     min: 0,
@@ -153,16 +154,43 @@
     });
     fillCatalogBlock(data);
   }
+
+  var renderEmptyFilterBlock = window.debounce(function () {
+    var filterErrorTemplate = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
+      var filterErrorBox = filterErrorTemplate.cloneNode(true);
+      Object.assign(filterErrorBox.style, {
+        'padding': '5px',
+        'width': '500px',
+        'color': 'white',
+        'fontsize': '30px',
+        'text-align': 'center',
+        'position': 'fixed',
+        'left': '40vw',
+        'top': '30vh',
+        'height': '150px',
+        'background-color': '#6e58d9',
+        'border': '3px solid #6e58a9'
+      });
+      document.querySelector('main').appendChild(filterErrorBox);
+  });
+
   var submitHandler = function (sbmtEvt) {
     sbmtEvt.preventDefault();
     resetFilter(sbmtEvt);
     fillCatalogBlock(window.data.get());
+    if (documentMain.lastElementChild.classList.contains('catalog__empty-filter')) {
+      documentMain.lastElementChild.remove();
+    }
   };
 
   function filterHandler(event) {
     event.preventDefault();
     var target = event.target;
     var data = window.data.get();
+
+    if (documentMain.lastElementChild.classList.contains('catalog__empty-filter')) {
+      documentMain.lastElementChild.remove();
+    }
 
     if (target === favorite) {
       resetFilter(target);
@@ -197,21 +225,7 @@
       sortRating(filteredData.slice());
     }
     if (!filteredData.length) { // Ничто не подходит под фильтры
-      var filterErrorTemplate = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
-      var filterErrorBox = filterErrorTemplate.cloneNode(true);
-      Object.assign(filterErrorBox.style, {
-        'padding': '5px',
-        'width': '500px',
-        'color': 'white',
-        'fontsize': '30px',
-        'text-align': 'center',
-        'position': 'absolute',
-        'left': '35%',
-        'height': '150px',
-        'background-color': '#6e58d9',
-        'border': '3px solid #6e58a9'
-      });
-      catalogBlock.appendChild(filterErrorBox);
+      renderEmptyFilterBlock();
     }
   }
   form.addEventListener('change', filterHandler);
