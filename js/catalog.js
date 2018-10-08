@@ -9,6 +9,8 @@
   var goodsTotal = document.querySelector('.goods__total-count');
   var totalAmount = document.querySelector('.goods__price');
   var basketHeaderAmount = document.querySelector('.main-header__basket');
+  var orderForm = document.querySelector('#order-form');
+  var orderFormElements = orderForm.querySelectorAll('input');
 
   var amount = 0;
   var totalGoods = 0;
@@ -19,12 +21,38 @@
   document.addEventListener('loadData', function () {
     var candies = window.data.get();
 
-    function setGoodsCount() {
+    var toDisableFormElements = function () {
+      for (var i = 0; i < orderFormElements.length; i++) {
+        orderFormElements[i].disabled = true;
+      }
+    };
+    toDisableFormElements();
+
+    var toEnableFormElements = function () {
+      for (var i = 0; i < orderFormElements.length; i++) {
+        orderFormElements[i].disabled = false;
+
+        if (orderFormElements[i].closest('.payment__card') && orderFormElements[i].closest('.payment__card').classList.contains('visually-hidden')) {
+          orderFormElements[i].disabled = true;
+        }
+        if (orderFormElements[i].closest('.payment__cash') && orderFormElements[i].closest('.payment__cash').classList.contains('visually-hidden')) {
+          orderFormElements[i].disabled = true;
+        }
+        if (orderFormElements[i].closest('.deliver__store') && orderFormElements[i].closest('.deliver__store').classList.contains('visually-hidden')) {
+          orderFormElements[i].disabled = true;
+        }
+        if (orderFormElements[i].closest('.deliver__courier') && orderFormElements[i].closest('.deliver__courier').classList.contains('visually-hidden')) {
+          orderFormElements[i].disabled = true;
+        }
+      }
+    };
+
+    var setGoodsCount = function () {
       basketHeaderAmount.textContent = 'В корзине ' + amount + ' товаров';
       goodsTotal.childNodes[0].textContent = 'Итого за ' + amount + ' товаров:';
-    }
+    };
 
-    function changeBasketTotal(index, isIncrease) {
+    var changeBasketTotal = function (index, isIncrease) {
       if (isIncrease) {
         totalGoods += candies[index].price;
       } else {
@@ -33,9 +61,9 @@
       }
       setGoodsCount();
       totalAmount.textContent = totalGoods + ' ₽';
-    }
+    };
 
-    function removeFromBasket(index, template, candyAmount) {
+    var removeFromBasket = function (index, template, candyAmount) {
       var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
       candies[index].isBasket = false;
       amount -= input.value;
@@ -45,10 +73,11 @@
       if (basket.children.length === 1) {
         changeEmptyBasketVisibility(false);
         basketHeaderAmount.textContent = 'В корзине ничего нет';
+        toDisableFormElements();
       }
-    }
+    };
 
-    function changeInputValue(index, operation) {
+    var changeInputValue = function (index, operation) {
       var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
       switch (operation) {
         case 'increase':
@@ -70,17 +99,17 @@
         default:
           break;
       }
-    }
+    };
 
-    function changeAmount(index, isIncrease) {
+    var changeAmount = function (index, isIncrease) {
       if (isIncrease) {
         candies[index].amount += 1;
       } else {
         candies[index].amount -= 1;
       }
-    }
+    };
 
-    function changeEmptyBasketVisibility(isVisible) {
+    var changeEmptyBasketVisibility = function (isVisible) {
       if (isVisible) {
         basket.classList.remove('goods__cards--empty');
         basketEmpty.classList.add('visually-hidden');
@@ -90,10 +119,9 @@
         basketEmpty.classList.remove('visually-hidden');
         basketTotal.classList.add('visually-hidden');
       }
+    };
 
-    }
-
-    function changeGoodsAmount(index, operation) {
+    var changeGoodsAmount = function (index, operation) {
       var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
       var value = parseInt(input.value, 10);
       switch (operation) {
@@ -107,9 +135,9 @@
           break;
       }
       input.value = value;
-    }
+    };
 
-    function renderBasketGoods(index, template) {
+    var renderBasketGoods = function (index, template) {
       if (!candies[index].isBasket) {
         template.querySelector('.card-order__title').textContent = candies[index].name;
         template.querySelector('.card-order__img').src = 'img/cards/' + candies[index].picture;
@@ -121,14 +149,15 @@
         changeGoodsAmount(index, 'increment');
       }
       changeAmount(index, false);
-    }
+    };
     // ОБРАБОТЧИК ДОБАВЛЕНИЯ В КОРЗИНУ:
-    var btnAddToBasketHandler = function (event) {
-      event.preventDefault();
+    var btnAddToBasketHandler = function (addEvt) {
+      addEvt.preventDefault();
       var template = basketCardTemplate.cloneNode(true);
-      var index = event.target.closest('.catalog__card').id;
+      var index = addEvt.target.closest('.catalog__card').id;
       var candyAmount = candies[index].amount;
       if (candies[index].amount !== 0) {
+        toEnableFormElements();
         renderBasketGoods(index, template);
         var input = basket.querySelector('[data-id="' + index + '"]').querySelector('.card-order__count');
         amount += 1;
@@ -167,9 +196,9 @@
       }
     };
     // ОБРАБОТЧИК ДОБАВЛЕНИЯ В ИЗБРАННОЕ:
-    var btnFavoriteClickHandler = function (event) {
-      event.preventDefault();
-      var btnFav = event.target;
+    var btnFavoriteClickHandler = function (favEvt) {
+      favEvt.preventDefault();
+      var btnFav = favEvt.target;
       btnFav.classList.toggle('card__btn-favorite--selected');
       btnFav.blur();
       var index = btnFav.closest('.catalog__card').id;

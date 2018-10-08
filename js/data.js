@@ -1,6 +1,7 @@
 // Модуль, который создаёт данные:
 'use strict';
 (function () {
+  var ESC_KEY = 27;
   var candies = null;
   window.popup = {
     modalErrorMessage: document.querySelector('.modal__message'),
@@ -9,7 +10,7 @@
     modalSuccessSection: document.querySelector('#modal-success'),
     modalSuccessClose: document.querySelector('#success__close-btn'),
     escCloseButtonHandler: function (evt, elem) {
-      if (evt.keyCode === 27) {
+      if (evt.keyCode === ESC_KEY) {
         elem.classList.add('modal--hidden');
         document.removeEventListener('keydown', function () {
           window.popup.escCloseButtonHandler(evt, elem);

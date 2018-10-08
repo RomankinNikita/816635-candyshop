@@ -1,22 +1,28 @@
-// Модуль, который экспортирует в глобальную область видимости функции для взаимодействия с удаленным севером через XHR:
 'use strict';
 
 (function () {
+  var Code = {
+    SUCCESS: 200,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    NOT_FOUND_ERROR: 404
+  };
+  var XHR_TIMEOUT = 10000;
   // Обработчик успешного и неудачного запроса/отправки данных:
   var loadErrorListener = function (xhr, onLoad, onError) {
     xhr.addEventListener('load', function () {
       var error;
       switch (xhr.status) {
-        case 200:
+        case Code.SUCCESS:
           onLoad(xhr.response);
           break;
-        case 400:
+        case Code.BAD_REQUEST:
           error = 'Неверный запрос';
           break;
-        case 401:
+        case Code.UNAUTHORIZED:
           error = 'Пользователь не авторизован';
           break;
-        case 404:
+        case Code.NOT_FOUND_ERROR:
           error = 'Ничего не найдено';
           break;
 
@@ -37,25 +43,25 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000; // 10s
+    xhr.timeout = XHR_TIMEOUT; // 10s
   };
 
   // Функция получения данных с сервера:
   window.load = function (onLoad, onError) {
-    var URL = 'https://js.dump.academy/candyshop/data';
+    var url = 'https://js.dump.academy/candyshop/data';
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     loadErrorListener(xhr, onLoad, onError);
-    xhr.open('GET', URL);
+    xhr.open('GET', url);
     xhr.send();
   };
   // Функция для отправки данных на сервер:
   window.upload = function (data, onLoad, onError) {
-    var URL = 'https://js.dump.academy/candyshop';
+    var url = 'https://js.dump.academy/candyshop';
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     loadErrorListener(xhr, onLoad, onError);
-    xhr.open('POST', URL);
+    xhr.open('POST', url);
     xhr.send(data);
   };
 })();
