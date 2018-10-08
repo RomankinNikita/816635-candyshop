@@ -1,18 +1,17 @@
 'use strict';
 
 (function () {
-
-  var form = document.querySelector('.catalog__sidebar form');
-  var formFields = Array.from(form.elements);
-  var favorite = form.querySelector('#filter-favorite');
-  var availability = form.querySelector('#filter-availability');
+  var limitPrice = {
+    MIN: 0,
+    MAX: 90
+  };
+  var formFilter = document.querySelector('.catalog__sidebar form');
+  var formFields = Array.from(formFilter.elements);
+  var favoriteFilter = formFilter.querySelector('#filter-favorite');
+  var availabilityFilter = formFilter.querySelector('#filter-availability');
   var catalogBlock = document.querySelector('.catalog__cards');
   var filterItemCount = document.querySelectorAll('.input-btn__item-count');
-
-  var limitPrice = {
-    min: 0,
-    max: 90
-  };
+  var documentMain = document.querySelector('main');
 
   var filteredData = null;
 
@@ -43,8 +42,8 @@
       return filtered;
     };
     var setValue = function (index) { // Запишем значение счетчика товара в фильтре
-      var value = toFilterForCounts(index);
-      filterItemCount[index].textContent = '(' + value.length + ')';
+      var values = toFilterForCounts(index);
+      filterItemCount[index].textContent = '(' + values.length + ')';
     };
 
     for (var i = 0; i < filterItemCount.length; i++) { // Присвоим каждому счетчику его значение
@@ -52,40 +51,40 @@
     }
   });
 
-  function switchKind(target) {
+  var switchKind = function (target) {
     if (!filterCriteria.kinds.includes(target.value)) {
       filterCriteria.kinds.push(target.value);
     } else {
       var index = filterCriteria.kinds.indexOf(target.value);
       filterCriteria.kinds.splice(index, 1);
     }
-  }
+  };
 
-  function filterKind(item) {
+  var filterKind = function (item) {
     return filterCriteria.kinds.length ? filterCriteria.kinds.includes(kindMap[item.kind.toLowerCase()]) : true;
-  }
+  };
 
-  function filterNutrition(item, field) {
+  var filterNutrition = function (item, field) {
     var result = true;
     if (filterCriteria.nutritionFacts[field]) {
       result = field === 'sugar' || field === 'gluten' ? !item.nutritionFacts[field] : item.nutritionFacts[field];
     }
     return result;
-  }
+  };
 
-  function filterPrice(item) {
-    return item.price >= limitPrice.min && item.price <= limitPrice.max;
-  }
+  var filterPrice = function (item) {
+    return item.price >= limitPrice.MIN && item.price <= limitPrice.MAX;
+  };
 
-  function filterFavorite(item) {
-    return favorite.checked ? item.isFavorite : true;
-  }
+  var filterFavorite = function (item) {
+    return favoriteFilter.checked ? item.isFavorite : true;
+  };
 
-  function filterAvailability(item) {
-    return availability.checked ? item.amount > 0 : true;
-  }
+  var filterAvailability = function (item) {
+    return availabilityFilter.checked ? item.amount > 0 : true;
+  };
 
-  function resetFilterCriteria(elem) {
+  var resetFilterCriteria = function (elem) {
     filterCriteria.kinds = [];
     filterCriteria.nutritionFacts.sugar = false;
     filterCriteria.nutritionFacts.gluten = false;
@@ -95,24 +94,24 @@
         item.checked = false;
       }
     });
-  }
+  };
 
-  function resetFilter(target) {
+  var resetFilter = function (target) {
     resetFilterCriteria(target);
     window.slider.reset();
-  }
+  };
 
   var fillCatalogBlock = window.debounce(function (data) {
     catalogBlock.innerHTML = '';
     window.fillBlock(catalogBlock, window.renderCandy, data);
   });
 
-  function sortPopularity(initData) {
+  var sortPopularity = function (initData) {
     var data = initData.slice();
     fillCatalogBlock(data);
-  }
+  };
 
-  function sortFromCheapToExpensive(initData) {
+  var sortFromCheapToExpensive = function (initData) {
     var data = initData.slice();
     data.sort(function (first, second) {
       if (first.price > second.price) {
@@ -124,9 +123,9 @@
       }
     });
     fillCatalogBlock(data);
-  }
+  };
 
-  function sortFromExpensiveToCheap(initData) {
+  var sortFromExpensiveToCheap = function (initData) {
     var data = initData.slice();
     data.sort(function (first, second) {
       if (first.price < second.price) {
@@ -138,9 +137,9 @@
       }
     });
     fillCatalogBlock(data);
-  }
+  };
 
-  function sortRating(initData) {
+  var sortRating = function (initData) {
     var data = initData.slice();
     data.sort(function (first, second) {
       if (first.rating.value < second.rating.value) {
@@ -152,23 +151,50 @@
       }
     });
     fillCatalogBlock(data);
-  }
+  };
+
+  var renderEmptyFilterBlock = window.debounce(function () {
+    var filterErrorTemplate = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
+    var filterErrorBox = filterErrorTemplate.cloneNode(true);
+    Object.assign(filterErrorBox.style, {
+      'padding': '5px',
+      'width': '500px',
+      'color': 'white',
+      'fontsize': '30px',
+      'text-align': 'center',
+      'position': 'fixed',
+      'left': '40vw',
+      'top': '30vh',
+      'height': '150px',
+      'background-color': '#6e58d9',
+      'border': '3px solid #6e58a9'
+    });
+    document.querySelector('main').appendChild(filterErrorBox);
+  });
+
   var submitHandler = function (sbmtEvt) {
     sbmtEvt.preventDefault();
     resetFilter(sbmtEvt);
     fillCatalogBlock(window.data.get());
+    if (documentMain.lastElementChild.classList.contains('catalog__empty-filter')) {
+      documentMain.lastElementChild.remove();
+    }
   };
 
-  function filterHandler(event) {
-    event.preventDefault();
-    var target = event.target;
+  var filterHandler = function (filterEvt) {
+    filterEvt.preventDefault();
+    var target = filterEvt.target;
     var data = window.data.get();
 
-    if (target === favorite) {
+    if (documentMain.lastElementChild.classList.contains('catalog__empty-filter')) {
+      documentMain.lastElementChild.remove();
+    }
+
+    if (target === favoriteFilter) {
       resetFilter(target);
     }
 
-    if (target === availability) {
+    if (target === availabilityFilter) {
       resetFilter(target);
     }
 
@@ -197,30 +223,16 @@
       sortRating(filteredData.slice());
     }
     if (!filteredData.length) { // Ничто не подходит под фильтры
-      var filterErrorTemplate = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
-      var filterErrorBox = filterErrorTemplate.cloneNode(true);
-      Object.assign(filterErrorBox.style, {
-        'padding': '5px',
-        'width': '500px',
-        'color': 'white',
-        'fontsize': '30px',
-        'text-align': 'center',
-        'position': 'absolute',
-        'left': '35%',
-        'height': '150px',
-        'background-color': '#6e58d9',
-        'border': '3px solid #6e58a9'
-      });
-      catalogBlock.appendChild(filterErrorBox);
+      renderEmptyFilterBlock();
     }
-  }
-  form.addEventListener('change', filterHandler);
-  form.addEventListener('submit', submitHandler);
+  };
+  formFilter.addEventListener('change', filterHandler);
+  formFilter.addEventListener('submit', submitHandler);
 
-  document.addEventListener('changePrice', function (event) {
-    limitPrice = event.price;
-    if (!favorite.checked && !availability.checked) {
-      form.dispatchEvent(new Event('change', {
+  document.addEventListener('changePrice', function (priceEvt) {
+    limitPrice = priceEvt.price;
+    if (!favoriteFilter.checked && !availabilityFilter.checked) {
+      formFilter.dispatchEvent(new Event('change', {
         bubbles: true,
         cancelable: true
       }));

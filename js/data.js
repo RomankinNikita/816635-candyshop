@@ -1,6 +1,7 @@
 // Модуль, который создаёт данные:
 'use strict';
 (function () {
+  var ESC_KEY = 27;
   var candies = null;
   window.popup = {
     modalErrorMessage: document.querySelector('.modal__message'),
@@ -9,7 +10,7 @@
     modalSuccessSection: document.querySelector('#modal-success'),
     modalSuccessClose: document.querySelector('#success__close-btn'),
     escCloseButtonHandler: function (evt, elem) {
-      if (evt.keyCode === 27) {
+      if (evt.keyCode === ESC_KEY) {
         elem.classList.add('modal--hidden');
         document.removeEventListener('keydown', function () {
           window.popup.escCloseButtonHandler(evt, elem);
@@ -48,8 +49,7 @@
     var loadText = document.querySelector('.catalog__load'); // загрузке данных
     loadBlock.classList.remove('catalog__cards--load'); // уберем блок:
     loadText.classList.add('visually-hidden'); // "Данные загружаются"
-    candies = data;
-    window.candies = data; // Массив с данными, полученными с сервера
+    candies = data; // Массив с данными, полученными с сервера
     document.dispatchEvent(loadData);
     window.fillBlock = function (block, createElement, dataArr) { // Отрисуем карточки товаров
       var fragment = document.createDocumentFragment();
@@ -58,7 +58,8 @@
       });
       block.appendChild(fragment);
     };
-    window.fillBlock(loadBlock, window.renderCandy, window.candies);
+
+    window.fillBlock(loadBlock, window.renderCandy, candies);
   };
   window.load(successDataHandler, errorDataHandler);
 

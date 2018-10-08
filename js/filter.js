@@ -2,19 +2,21 @@
 
 (function () {
   // // ФИЛЬТР ПО ЦЕНЕ:
-  var rangeFilter = document.querySelector('.range__filter'); // Блок слайдера
-  var rangeFillLine = rangeFilter.querySelector('.range__fill-line'); // Ползунок слайдера
-  var rangePricePinLeft = rangeFilter.querySelector('.range__btn--left'); // Левый пин
-  var rangePricePinRight = rangeFilter.querySelector('.range__btn--right'); // Правый пин
-
+  var MIN_RANGE_PRICE = 0;
+  var MAX_RANGE_PRICE = 90;
+  var RANGE_FILTER_WIDTH = 245;
   var changePrice = new Event('changePrice', {
     bubbles: true,
     cancelable: true
   });
   changePrice.price = {
-    min: 0,
-    max: 90
+    MIN: 0,
+    MAX: 90
   };
+  var rangeFilter = document.querySelector('.range__filter'); // Блок слайдера
+  var rangeFillLine = rangeFilter.querySelector('.range__fill-line'); // Ползунок слайдера
+  var rangePricePinLeft = rangeFilter.querySelector('.range__btn--left'); // Левый пин
+  var rangePricePinRight = rangeFilter.querySelector('.range__btn--right'); // Правый пин
 
   var mouseDownHandler = function (downEvt) { // Обработчик mouseDown
     downEvt.preventDefault();
@@ -40,7 +42,6 @@
           setPriceRange(currentPin, moveEvt, 'max', false);
         }
       } else {
-        // document.removeEventListener('mouseup', mouseUpHandler);
         document.removeEventListener('mousemove', mouseMoveHandler);
         document.removeEventListener('mouseup', mouseUpHandler);
       }
@@ -56,9 +57,9 @@
       upEvt.preventDefault();
 
       if (isLeft) { // Если левый пин
-        changePrice.price.min = setPriceRange(currentPin, upEvt, 'min', true);
+        changePrice.price.MIN = setPriceRange(currentPin, upEvt, 'min', true);
       } else { // Если правый пин
-        changePrice.price.max = setPriceRange(currentPin, upEvt, 'max', false);
+        changePrice.price.MAX = setPriceRange(currentPin, upEvt, 'max', false);
       }
       document.dispatchEvent(changePrice);
       document.removeEventListener('mousemove', mouseMoveHandler); // Удалим все
@@ -97,9 +98,9 @@
       rangeFillLine.style.right = eventName ? (rangeFilter.offsetWidth - pin.offsetLeft - pinWidth / 2) + 'px' : zeroValue; // Применим через стили крайнее правое полож. ползунка
     }
     if (eventName) {
-      priceValue = Math.round((pin.offsetLeft + pinWidth / 2) / 245 * 90);
+      priceValue = Math.round((pin.offsetLeft + pinWidth / 2) / RANGE_FILTER_WIDTH * MAX_RANGE_PRICE);
     } else {
-      priceValue = (isLeft ? 0 : 90);
+      priceValue = (isLeft ? MIN_RANGE_PRICE : MAX_RANGE_PRICE);
     }
     rangePrice.textContent = priceValue; // Установим значение цены, соответствующее положению пина
     return priceValue;
@@ -109,8 +110,8 @@
 
   window.slider = {
     reset: function () {
-      changePrice.price.min = setPriceRange(rangePricePinLeft, '', 'min', true);
-      changePrice.price.max = setPriceRange(rangePricePinRight, '', 'max', false);
+      changePrice.price.MIN = setPriceRange(rangePricePinLeft, '', 'min', true);
+      changePrice.price.MAX = setPriceRange(rangePricePinRight, '', 'max', false);
     }
   };
 })();
