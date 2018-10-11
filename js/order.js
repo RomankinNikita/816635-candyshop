@@ -108,8 +108,20 @@
     return true;
   };
 
-  var successUploadHandler = function () {
+  var clearForm = function () {
+    var resetPayEnabledElement = document.querySelector('.payment__card');
+    var resetPayDisabledElement = document.querySelector('.payment__cash');
+    var resetDeliverEnabledElement = document.querySelector('.deliver__store');
+    var resetDeliverDisabledElement = document.querySelector('.deliver__courier');
     orderForm.reset();
+    resetPayEnabledElement.classList.remove('visually-hidden');
+    resetPayDisabledElement.classList.add('visually-hidden');
+    resetDeliverEnabledElement.classList.remove('visually-hidden');
+    resetDeliverDisabledElement.classList.add('visually-hidden');
+  };
+
+  var successUploadHandler = function () {
+    clearForm();
     window.popup.modalSuccessSection.classList.remove('modal--hidden');
     window.popup.closeSuccessPopup();
   };
@@ -320,6 +332,12 @@
       window.upload(new FormData(orderForm), successUploadHandler, errorUploadHandler);
     }
   });
+
+  window.validValue = {
+    get: function () {
+      return valid;
+    }
+  };
 
   // Смена карты метро:
   var storeImg = document.querySelector('.deliver__store-map-img');

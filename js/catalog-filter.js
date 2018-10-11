@@ -12,6 +12,7 @@
   var catalogBlock = document.querySelector('.catalog__cards');
   var filterItemCount = document.querySelectorAll('.input-btn__item-count');
   var documentMain = document.querySelector('main');
+  var filterPriceCount = formFilter.querySelector('.range__count');
 
   var filteredData = null;
 
@@ -49,6 +50,12 @@
     for (var i = 0; i < filterItemCount.length; i++) { // Присвоим каждому счетчику его значение
       setValue(i);
     }
+
+    var filterPriceGoods = dataCopy.filter(function (item) {
+      return item.price >= limitPrice.MIN && item.price <= limitPrice.MAX;
+    });
+    var filterPriceCountValue = filterPriceGoods.length;
+    filterPriceCount.textContent = '(' + filterPriceCountValue + ')';
   });
 
   var switchKind = function (target) {
@@ -237,6 +244,5 @@
         cancelable: true
       }));
     }
-
   });
 })();
