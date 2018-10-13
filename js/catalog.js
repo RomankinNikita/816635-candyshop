@@ -192,6 +192,7 @@
             changeInputValue(index, 'decrease');
           }
         });
+
         // Кнопка увеличения:
         var increaseValueBtn = template.querySelector('.card-order__btn--increase');
         increaseValueBtn.addEventListener('click', function () {
@@ -201,12 +202,14 @@
           }
           changeInputValue(index, 'increase');
         });
+
         // Удалить из корзины:
         var deleteGoodsBtn = template.querySelector('.card-order__close');
         deleteGoodsBtn.addEventListener('click', function (evt) {
           evt.preventDefault();
           removeFromBasket(index, template, candyAmount);
         });
+
         // Очистка корзины от товаров в случае успешной отправки формы заказа:
         var resetBasketHandler = function (evt) {
           evt.preventDefault();
@@ -219,6 +222,7 @@
         orderForm.addEventListener('submit', resetBasketHandler);
       }
     };
+
     // ОБРАБОТЧИК ДОБАВЛЕНИЯ В ИЗБРАННОЕ:
     var btnFavoriteClickHandler = function (evt, candy) {
       evt.preventDefault();
@@ -231,6 +235,7 @@
         filterForm.dispatchEvent(eventChange);
       }
     };
+
     // ФУНКЦИЯ ГЕНЕРАЦИИ КАРТОЧКИ ТОВАРА:
     window.renderCandy = function (candy, id) {
       var candyElement = similarCandyTemplate.cloneNode(true);
