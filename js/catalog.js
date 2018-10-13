@@ -231,7 +231,7 @@
       btnFav.blur();
       candy.isFavorite = !candy.isFavorite;
       setFavoriteCountValue(!!candy.isFavorite);
-      if(favoriteBtn.checked) {
+      if (favoriteBtn.checked) {
         filterForm.dispatchEvent(eventChange);
       }
     };
