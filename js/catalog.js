@@ -13,6 +13,10 @@
   var orderFormElements = orderForm.querySelectorAll('input');
   var favoriteCount = document.querySelector('#favorite-count');
   var favoriteCountValue = 0;
+  var filterForm = document.querySelector('#filter-form');
+  var favoriteBtn = filterForm.querySelector('#filter-favorite');
+
+  var eventChange = new Event('change', {bubbles: true, cancelable: true});
 
   var amount = 0;
   var totalGoods = 0;
@@ -222,10 +226,9 @@
       btnFav.classList.toggle('card__btn-favorite--selected');
       btnFav.blur();
       candy.isFavorite = !candy.isFavorite;
-      if (candy.isFavorite) {
-        setFavoriteCountValue(true);
-      } else {
-        setFavoriteCountValue(false);
+      setFavoriteCountValue(!!candy.isFavorite);
+      if(favoriteBtn.checked) {
+        filterForm.dispatchEvent(eventChange);
       }
     };
     // ФУНКЦИЯ ГЕНЕРАЦИИ КАРТОЧКИ ТОВАРА:
